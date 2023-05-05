@@ -1,3 +1,5 @@
+package server;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -6,7 +8,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 /**
- * This is the entrypoint for the Server. Running this file will start the server on the given port
+ * This is the entrypoint for the server.Server. Running this file will start the server on the given port
  * and run until shutdown. If a port is not given, the default port will be used.
  */
 public class Server {
@@ -52,7 +54,8 @@ public class Server {
   private static int getPort(CommandLine cmd) {
     try {
       if(cmd.hasOption('p')) {
-        return Integer.parseInt(cmd.getOptionValue('p'));
+        int port = Integer.parseInt(cmd.getOptionValue('p'));
+        return (port >= 0 && port <= 65535) ? port : DEFAULT_PORT;
       }
     }
     catch (NumberFormatException ignored) {
@@ -75,7 +78,7 @@ public class Server {
 
     } catch (ParseException e) {
       HelpFormatter formatter = new HelpFormatter();
-      formatter.printHelp("Server", options);
+      formatter.printHelp("server.Server", options);
 
       shutdownServerWithError("Unable to parse. Reason: " + e.getMessage());
     }

@@ -1,3 +1,5 @@
+package server;
+
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,7 +31,7 @@ public class GamesManager {
     this.clientsWaitingToPlay = new LinkedBlockingQueue<>();
     this.stopServerFlag = false;
 
-    // add two for the ClientsAcceptor and InputListener
+    // add two for the server.ClientsAcceptor and server.InputListener
     int numThreadsInPool = MAX_GAMES_RUNNING_AT_A_TIME + 2;
     this.executorService = Executors.newFixedThreadPool(numThreadsInPool);
   }
@@ -40,18 +42,32 @@ public class GamesManager {
 
     while(!stopServerFlag) {
       if(!this.clientsWaitingToPlay.isEmpty()) {
-
+        //TODO: build logic for taking clients in queue and placing them in games.
+        /*
+          Notes for spawning games:
+          - There needs to be an available thread to run the game
+          - CPU requests at start of queue can be added immediately
+          - MULTI requests need a second client with MULTI to start a game
+          - should MULTI queued players timeout if they wait for a match for too long?
+        */
       }
     }
+    System.out.println("Shutting down server...");
     this.executorService.shutdown();
     this.executorService.shutdownNow();
-    System.out.println("Shutting down server...");
   }
 
+  /**
+   * Add a server.Player to the queue to play a game.
+   * @param player the player to add
+   */
   public synchronized void addPlayerToQueue(Player player) {
     this.clientsWaitingToPlay.add(player);
   }
 
+  /**
+   * Tell the server.GamesManager to stop the server.
+   */
   public synchronized void stopServer() {
     this.stopServerFlag = true;
   }

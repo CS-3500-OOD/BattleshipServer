@@ -1,3 +1,5 @@
+package server;
+
 import java.util.Scanner;
 
 /**
@@ -16,7 +18,7 @@ public class InputListener {
   }
 
   /**
-   * Accepts input until the keyword 'quit' is given. Then notifies the GamesManager to stop the server.
+   * Accepts input until the keyword 'quit' is given. Then notifies the server.GamesManager to stop the server.
    */
   public void acceptInput() {
     Scanner scanner = new Scanner(System.in);
