@@ -68,7 +68,7 @@ public class ClientsAcceptor {
    */
   private void attemptToSignupClient(ExecutorService executor, Socket client) {
     try {
-      executor.submit(new ClientSignupAttempt(client));
+      executor.submit(new ClientSignupAttempt(this.manager, client));
     }
     catch (RejectedExecutionException e) {
       // TODO: send message to client explaining there are too many people signing up at one time
