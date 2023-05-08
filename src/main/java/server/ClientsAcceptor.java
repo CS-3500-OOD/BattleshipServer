@@ -3,9 +3,13 @@ package server;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * This class accepts clients on the specified port number until the server is shutdown.
@@ -17,6 +21,7 @@ import java.util.concurrent.RejectedExecutionException;
 public class ClientsAcceptor {
 
   private static final int MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME = 3;
+  private static final int MAX_SIGNUP_TIME_SECS = 2;
   private final GamesManager manager;
   private final int port;
   private boolean stopAcceptingClients;
@@ -68,9 +73,10 @@ public class ClientsAcceptor {
    */
   private void attemptToSignupClient(ExecutorService executor, Socket client) {
     try {
-      executor.submit(new ClientSignupAttempt(this.manager, client));
+      Future<?> future = executor.submit(new ClientSignupAttempt(this.manager, client));
+      future.get(MAX_SIGNUP_TIME_SECS, TimeUnit.SECONDS);
     }
-    catch (RejectedExecutionException e) {
+    catch (RejectedExecutionException | ExecutionException | InterruptedException | TimeoutException e) {
       // TODO: send message to client explaining there are too many people signing up at one time
       try {
         client.close();

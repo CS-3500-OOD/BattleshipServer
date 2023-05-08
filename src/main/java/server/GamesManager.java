@@ -43,6 +43,7 @@ public class GamesManager {
     this.executorService.submit(inputListener::acceptInput);
 
     while(!stopServerFlag) {
+
       if(!this.clientsWaitingToPlay.isEmpty()) {
         //TODO: build logic for taking clients in queue and placing them in games.
         Player nextPlayer = this.clientsWaitingToPlay.get(0);
