@@ -1,9 +1,11 @@
 package server;
 
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 
 /**
  * This class connects clients to opponents and manages all active games.
@@ -21,14 +23,14 @@ public class GamesManager {
   private final ClientsAcceptor clientsAcceptor;
   private final InputListener inputListener;
 
-  private final Queue<Player> clientsWaitingToPlay;
+  private final List<Player> clientsWaitingToPlay;
 
   private boolean stopServerFlag;
 
   public GamesManager(int port) {
     this.clientsAcceptor = new ClientsAcceptor(port, this);
     this.inputListener = new InputListener(this);
-    this.clientsWaitingToPlay = new LinkedBlockingQueue<>();
+    this.clientsWaitingToPlay = Collections.synchronizedList(new ArrayList<Player>());
     this.stopServerFlag = false;
 
     // add two for the server.ClientsAcceptor and server.InputListener
@@ -43,6 +45,13 @@ public class GamesManager {
     while(!stopServerFlag) {
       if(!this.clientsWaitingToPlay.isEmpty()) {
         //TODO: build logic for taking clients in queue and placing them in games.
+        Player nextPlayer = this.clientsWaitingToPlay.get(0);
+        if(nextPlayer.getGameType() == GameType.MULTI) {
+
+        }
+        else {
+
+        }
         /*
           Notes for spawning games:
           - There needs to be an available thread to run the game
@@ -55,6 +64,34 @@ public class GamesManager {
     System.out.println("Shutting down server...");
     this.executorService.shutdown();
     this.executorService.shutdownNow();
+  }
+
+  public boolean attemptSpawnMultiPlayerGame(Player player1) {
+    //TODO: find next player in queue that wants to do multi
+    // if there exists a player with multi, get reference to it
+    Player player2 = ...;
+    return attemptSpawnGame(player1, player2);
+    //TODO: if no player exists, move player to end of queue?
+    return false;
+  }
+
+  public boolean attemptSpawnCPUPlayerGame(Player player1) {
+    //TODO: make instance of CPU player
+    Player cpu = ...;
+    return attemptSpawnGame(player1, cpu);
+  }
+
+  public boolean attemptSpawnGame(Player player1, Player player2) {
+    // TODO: make instance of referee with both players
+    try {
+      //TODO: attempt to spawn thread with GameReferee:startGame
+      this.executorService.submit(...);
+      return true;
+    }
+    catch(RejectedExecutionException e) {
+      // unable to start game, queue is full...
+      return false;
+    }
   }
 
   /**
