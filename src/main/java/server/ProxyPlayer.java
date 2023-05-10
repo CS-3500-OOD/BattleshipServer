@@ -1,5 +1,7 @@
 package server;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import game.Coord;
 import game.Player;
 import game.Ship;
@@ -37,6 +39,7 @@ public class ProxyPlayer implements Player {
 
     @Override
     public List<Ship> setup(Map<String, Integer> specifications) {
+        JsonNode node = new ObjectMapper().convertValue(specifications, JsonNode.class);
         return null;
     }
 
