@@ -36,7 +36,7 @@ public class Referee implements IReferee{
         gameInfo.put("width", this.width);
 
         //Create Random Bounded Ship assignments
-        List<String> types = new ArrayList<>(Arrays.asList("Carrier", "BattleShip", "Destroyer", "Submarine"));
+        List<String> types = new ArrayList<>(Arrays.asList("carrier", "battleShip", "destroyer", "submarine"));
         for (String s : types){
             gameInfo.put(s, r.nextInt(3));
         }

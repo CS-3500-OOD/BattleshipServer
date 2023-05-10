@@ -69,10 +69,10 @@ public class PlayerImp implements Player {
 
         //Initialize a hashmap of ship types paired to lengths
         Map<String, Integer> reference = new HashMap();
-        reference.put("Carrier", 6);
-        reference.put("BattleShip", 5);
-        reference.put("Destroyer", 4);
-        reference.put("Submarine", 3);
+        reference.put("carrier", 6);
+        reference.put("battleShip", 5);
+        reference.put("destroyer", 4);
+        reference.put("submarine", 3);
         List<Ship> temp = new ArrayList<>();
 
         //Create initial set of Ship objects

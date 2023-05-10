@@ -1,7 +1,5 @@
 package server;
 
-import game.Player;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -25,14 +23,14 @@ public class GamesManager {
   private final ClientsAcceptor clientsAcceptor;
   private final InputListener inputListener;
 
-  private final List<Player> clientsWaitingToPlay;
+  private final List<ProxyPlayer> clientsWaitingToPlay;
 
   private boolean stopServerFlag;
 
   public GamesManager(int port) {
     this.clientsAcceptor = new ClientsAcceptor(port, this);
     this.inputListener = new InputListener(this);
-    this.clientsWaitingToPlay = Collections.synchronizedList(new ArrayList<Player>());
+    this.clientsWaitingToPlay = Collections.synchronizedList(new ArrayList<>());
     this.stopServerFlag = false;
 
     // add two for the server.ClientsAcceptor and server.InputListener
@@ -48,7 +46,7 @@ public class GamesManager {
 
       if(!this.clientsWaitingToPlay.isEmpty()) {
         //TODO: build logic for taking clients in queue and placing them in games.
-        Player nextPlayer = this.clientsWaitingToPlay.get(0);
+        ProxyPlayer nextPlayer = this.clientsWaitingToPlay.get(0);
         if(nextPlayer.getGameType() == GameType.MULTI) {
 
         }
