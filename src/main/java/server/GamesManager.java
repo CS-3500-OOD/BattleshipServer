@@ -1,10 +1,13 @@
 package server;
 
 import game.Player;
+import game.PlayerImp;
+import game.Referee;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -40,62 +43,34 @@ public class GamesManager {
     this.executorService = Executors.newFixedThreadPool(numThreadsInPool);
   }
 
+  /**
+   * Main loop of the GamesManager. This method first submits the helper instances of a ClientsAcceptor and
+   * InputListener to the thread pool to work independently of the GamesManager. Then the main loop begins by looping
+   * until a player has joined the game queue. The method then attempts to spawn a game for the first player in the
+   * queue. When the server is stopped, then the loop ends, and the ExecutorService shuts down.
+   */
   public void startHostingGames() {
     this.executorService.submit(clientsAcceptor::acceptClients);
     this.executorService.submit(inputListener::acceptInput);
 
     while(!stopServerFlag) {
-
       if(!this.clientsWaitingToPlay.isEmpty()) {
-        //TODO: build logic for taking clients in queue and placing them in games.
-        ProxyPlayer nextPlayer = this.clientsWaitingToPlay.get(0);
-        if(nextPlayer.getGameType() == GameType.MULTI) {
+        ProxyPlayer nextPlayer = this.clientsWaitingToPlay.remove(0);
 
-        }
-        else {
+        boolean success = this.attemptDelegateGameCreationForPlayer(nextPlayer);
 
+        //unable to find a game, add the player to the end of the queue
+        if(!success) {
+          this.clientsWaitingToPlay.add(nextPlayer);
         }
-        /*
-          Notes for spawning games:
-          - There needs to be an available thread to run the game
-          - CPU requests at start of queue can be added immediately
-          - MULTI requests need a second client with MULTI to start a game
-          - should MULTI queued players timeout if they wait for a match for too long?
-        */
       }
     }
+
     System.out.println("Shutting down server...");
     this.executorService.shutdown();
     this.executorService.shutdownNow();
   }
 
-  public boolean attemptSpawnMultiPlayerGame(Player player1) {
-    //TODO: find next player in queue that wants to do multi
-    // if there exists a player with multi, get reference to it
-    Player player2 = ...;
-    return attemptSpawnGame(player1, player2);
-    //TODO: if no player exists, move player to end of queue?
-    return false;
-  }
-
-  public boolean attemptSpawnCPUPlayerGame(Player player1) {
-    //TODO: make instance of CPU player
-    Player cpu = ...;
-    return attemptSpawnGame(player1, cpu);
-  }
-
-  public boolean attemptSpawnGame(Player player1, Player player2) {
-    // TODO: make instance of referee with both players
-    try {
-      //TODO: attempt to spawn thread with GameReferee:startGame
-      this.executorService.submit(...);
-      return true;
-    }
-    catch(RejectedExecutionException e) {
-      // unable to start game, queue is full...
-      return false;
-    }
-  }
 
   /**
    * Add a server.Player to the queue to play a game.
@@ -105,10 +80,80 @@ public class GamesManager {
     this.clientsWaitingToPlay.add(player);
   }
 
+
   /**
    * Tell the server.GamesManager to stop the server.
    */
   public synchronized void stopServer() {
     this.stopServerFlag = true;
+  }
+
+
+  /**
+   * Depending on the GameType of the given ProxyPlayer, attempt to spawn a game with that player.
+   *
+   * @param player the ProxyPlayer
+   * @return if spawning the game was successful
+   */
+  private boolean attemptDelegateGameCreationForPlayer(ProxyPlayer player) {
+    if(player.getGameType() == GameType.MULTI) {
+      return this.attemptSpawnMultiPlayerGame(player);
+    }
+    else {
+      return this.attemptSpawnCPUPlayerGame(player);
+    }
+  }
+
+  /**
+   * Attempt to spawn a game with the given player against another player waiting in queue.
+   *
+   * @param player1 Player 1
+   * @return true if spawning the game was successful, false if not
+   */
+  private boolean attemptSpawnMultiPlayerGame(Player player1) {
+    Optional<ProxyPlayer> player2 = getNextMultiPlayer();
+    if(player2.isPresent()) {
+      return attemptSpawnGame(player1, player2.get());
+    }
+    return false;
+  }
+
+  private Optional<ProxyPlayer> getNextMultiPlayer() {
+    for (ProxyPlayer current : this.clientsWaitingToPlay) {
+      if (current.getGameType() == GameType.MULTI) {
+        return Optional.of(current);
+      }
+    }
+    return Optional.empty();
+  }
+
+
+  /**
+   * Attempt to spawn a game with one player against the Server CPU.
+   *
+   * @param player1 Player 1
+   * @return true if spawning the game was successful, false if not
+   */
+  private boolean attemptSpawnCPUPlayerGame(Player player1) {
+    Player cpu = new PlayerImp();
+    return attemptSpawnGame(player1, cpu);
+  }
+
+  /**
+   * Attempts to spawn a game in the ExecutorService Thread Pool.
+   *
+   * @param player1 Player 1
+   * @param player2 Player 2
+   * @return true if spawning the game was successful, false if not
+   */
+  private boolean attemptSpawnGame(Player player1, Player player2) {
+    try {
+      Referee referee = new Referee(player1, player2);
+      this.executorService.submit(referee::run);
+      return true;
+    }
+    catch(RejectedExecutionException e) {
+      return false; // unable to start game, queue is full...
+    }
   }
 }

@@ -2,7 +2,7 @@ package game;
 
 import java.util.*;
 
-public class Referee implements IReferee{
+public class Referee implements IReferee {
     private Board p1Board;
     private Board p2Board;
     private Player client1;

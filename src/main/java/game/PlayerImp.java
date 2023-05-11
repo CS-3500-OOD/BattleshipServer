@@ -75,7 +75,7 @@ public class PlayerImp implements Player {
     private void placeBoats(Map<String, Integer> boats) {
 
         //Initialize a hashmap of ship types paired to lengths
-        Map<String, Integer> reference = new HashMap();
+        Map<String, Integer> reference = new HashMap<>();
         reference.put("carrier", 6);
         reference.put("battleShip", 5);
         reference.put("destroyer", 4);
@@ -121,7 +121,7 @@ public class PlayerImp implements Player {
     /**
      * Process Hits. These hits represent shots fired by this player in the previous salvo that hit boats.
      * 0 indexed.
-     * @param shots
+     * @param shots the shots
      */
     @Override
     public void hits(List<Coord> shots) {
