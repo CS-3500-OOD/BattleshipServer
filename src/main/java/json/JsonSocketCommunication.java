@@ -15,6 +15,7 @@ import java.util.Optional;
  */
 public class JsonSocketCommunication {
 
+    private final Socket connection;
     private final JsonParser input;
     private final PrintWriter output;
 
@@ -25,6 +26,7 @@ public class JsonSocketCommunication {
      * @throws IOException if there is an issue retrieving either the input or output stream from the socket connection
      */
     public JsonSocketCommunication(Socket connection) throws IOException {
+        this.connection = connection;
         this.input = new ObjectMapper().createParser(connection.getInputStream());
         this.output = new PrintWriter(connection.getOutputStream());
     }
@@ -50,6 +52,16 @@ public class JsonSocketCommunication {
             return Optional.of(this.input.readValueAs(MessageJSON.class));
         } catch (IOException e) {
             return Optional.empty();
+        }
+    }
+
+    /**
+     * Attempts to close the connection with the socket.
+     */
+    public void endCommunication() {
+        try {
+            this.connection.close();
+        } catch (IOException ignored) {
         }
     }
 }

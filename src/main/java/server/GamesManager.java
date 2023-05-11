@@ -1,5 +1,7 @@
 package server;
 
+import game.Player;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -99,7 +101,7 @@ public class GamesManager {
    * Add a server.Player to the queue to play a game.
    * @param player the player to add
    */
-  public synchronized void addPlayerToQueue(Player player) {
+  public synchronized void addPlayerToQueue(ProxyPlayer player) {
     this.clientsWaitingToPlay.add(player);
   }
 

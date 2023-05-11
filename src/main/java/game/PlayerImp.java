@@ -12,6 +12,13 @@ public class PlayerImp implements Player {
      */
     protected CellStatus[][] OpponentBoard;
 
+    private static final String CPU_NAME = "SERVER_CPU";
+
+    @Override
+    public String name() {
+        return CPU_NAME;
+    }
+
     /**
      * Recieves a list of opponents shots from the previous round. Updates board, and replies with a list of shots
      * for the new round

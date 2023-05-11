@@ -4,10 +4,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.Socket;
+
+import json.MessageJSON;
 import json.PlayerJSON;
 
 public class ClientSignupAttempt implements Runnable {
-
 
   private final GamesManager manager;
   private final Socket client;
@@ -23,9 +24,16 @@ public class ClientSignupAttempt implements Runnable {
     try {
       ObjectMapper mapper = new ObjectMapper();
       JsonParser parser = mapper.createParser(this.client.getInputStream());
-      PlayerJSON playerJSON = mapper.readValue(parser, PlayerJSON.class);
-      // TODO: build the proxy player
-      manager.addPlayerToQueue(...);
+      MessageJSON messageJSON = mapper.readValue(parser, MessageJSON.class);
+
+      if("join".equals(messageJSON.messageName())) {
+        PlayerJSON playerJSON = mapper.convertValue(messageJSON.arguments(), PlayerJSON.class);
+        ProxyPlayer player = new ProxyPlayer(this.client, playerJSON.name(), playerJSON.gameType());
+        manager.addPlayerToQueue(player);
+      }
+      else {
+        this.client.close();
+      }
     }
     catch (IOException ignored) {
       // client connection interrupted or client sent bad input
