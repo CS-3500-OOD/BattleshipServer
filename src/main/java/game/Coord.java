@@ -1,10 +1,14 @@
 package game;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Coord {
     private final int x;
     private final int y;
 
-    public Coord(int x, int y) {
+    @JsonCreator
+    public Coord(@JsonProperty("x") int x, @JsonProperty("y") int y) {
         this.x = x;
         this.y = y;
     }
