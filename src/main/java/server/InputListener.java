@@ -26,14 +26,14 @@ public class InputListener {
       String line = scanner.next();
 
       if(QUIT.equalsIgnoreCase(line)) {
-        this.manager.stopServer();
+      //  this.manager.stopServer();
         this.takeInput = false;
       }
       else {
         System.out.println("To stop the server, type 'quit'");
       }
     }
-    this.manager.stopServer();
+   // this.manager.stopServer();
   }
 
 }

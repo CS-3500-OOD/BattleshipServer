@@ -1,12 +1,9 @@
 package server;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import game.Coord;
-import game.Dir;
 import game.Player;
 import game.Ship;
-import json.*;
+import game.ShipType;
 
 import java.io.IOException;
 import java.net.Socket;
