@@ -8,5 +8,5 @@ package game;
  * - Splash: A cell that was empty, Struck
  */
 public enum CellStatus {
-    EMPTY, HIT, SPLASH, SHIP;
+    EMPTY, HIT, SPLASH;
 }

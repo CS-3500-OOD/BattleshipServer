@@ -34,6 +34,7 @@ public class PlayerImp implements Player {
         return this.generateShots(acc);
     }
 
+
     private List<Coord> generateShots(int number){
         List<Coord> retList = new ArrayList<>();
         Random r = new Random();
@@ -43,11 +44,19 @@ public class PlayerImp implements Player {
                 int x = r.nextInt(OpponentBoard.length);
                 int y = r.nextInt(OpponentBoard[0].length);
                 currentCoord = new Coord(x, y);
-            }while(retList.contains(currentCoord));
+            }while(retList.contains(currentCoord) && ! this.validShot(currentCoord));
             retList.add(currentCoord);
 
         }
+        for (Coord shot : retList){
+            OpponentBoard[shot.x()][shot.y()] = CellStatus.SPLASH;
+        }
         return retList;
+    }
+
+
+    private boolean validShot(Coord c){
+        return this.OpponentBoard[c.x()][c.y()] == CellStatus.EMPTY;
     }
 
 
@@ -55,6 +64,11 @@ public class PlayerImp implements Player {
     public List<Ship> setup(Map<String, Integer> spec) {
         Map<String, Integer> specifications = new HashMap<>(spec);
         this.OpponentBoard = new CellStatus[specifications.get("width")][specifications.get("height")];
+        for(int i = 0; i < OpponentBoard.length; i ++){
+            for (int j = 0; j < OpponentBoard[0].length; j++){
+                OpponentBoard[i][j] = CellStatus.EMPTY;
+            }
+        }
         this.fleet = new ArrayList<>();
         specifications.remove("width");
         specifications.remove("height");
@@ -68,7 +82,7 @@ public class PlayerImp implements Player {
     private void placeBoats(Map<String, Integer> boats) {
 
         //Initialize a hashmap of ship types paired to lengths
-        Map<String, Integer> reference = new HashMap();
+        Map<String, Integer> reference = new HashMap<>();
         reference.put("carrier", 6);
         reference.put("battleShip", 5);
         reference.put("destroyer", 4);
@@ -82,7 +96,7 @@ public class PlayerImp implements Player {
             }
         }
         Random r = new Random();
-        List<Dir> allDirs = new ArrayList<>(Arrays.asList(Dir.LEFT, Dir.UP, Dir.DOWN, Dir.RIGHT));
+        List<Dir> allDirs = new ArrayList<>(Arrays.asList(Dir.VERTICAL, Dir.VERTICAL));
 
         //Repeatedly place ships at random valid locations until all ships are placed.
          for (Ship s : temp){
@@ -91,7 +105,7 @@ public class PlayerImp implements Player {
                    System.out.println(this.fleet.size());
                    int x = r.nextInt(this.OpponentBoard.length);
                    int y = r.nextInt(this.OpponentBoard[0].length);
-                   Dir dir = allDirs.get(r.nextInt(4));
+                   Dir dir = allDirs.get(r.nextInt(2));
                    s.place(new Coord(x, y), dir);
                    if (this.validCoords(s)) {
                        for (Ship s2 : this.fleet) {
@@ -107,8 +121,8 @@ public class PlayerImp implements Player {
     }
 
     private boolean validCoords(Ship s) {
-        return s.getStartPoint().getX() >= 0 && s.getEndpoint().getX() >= 0 && s.getStartPoint().getX() < OpponentBoard.length
-                && s.getEndpoint().getY() < OpponentBoard[0].length;
+        return s.getStartPoint().x() >= 0 && s.getEndpoint().x() >= 0 && s.getStartPoint().x() < OpponentBoard.length
+                && s.getEndpoint().y() < OpponentBoard[0].length;
     }
 
     /**
@@ -119,7 +133,7 @@ public class PlayerImp implements Player {
     @Override
     public void hits(List<Coord> shots) {
         for (Coord shot : shots) {
-            this.OpponentBoard[shot.getX()][shot.getY()] = CellStatus.HIT;
+            this.OpponentBoard[shot.x()][shot.y()] = CellStatus.HIT;
         }
     }
 

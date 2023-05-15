@@ -9,7 +9,7 @@ import java.util.List;
 public class Ship {
 
     //False for alive, true for sunk
-    private boolean status;
+    private boolean status = false;
 
     private Coord startPoint;
 
@@ -65,20 +65,10 @@ public class Ship {
      * @return  true if hit, and false if not a NEW hit.
      */
     public void receiveShot(Coord c){
-        if (this.orientation == Dir.LEFT || this.orientation == Dir.RIGHT){
-            if((this.startPoint.getY() == c.getY() && this.startPoint.getX() <= c.getX() && this.getEndpoint().getX() >= c.getX())
-            && !hits.contains(c));
+        if (this.isHit(c) && !hits.contains(c)){
             hits.add(c);
         }
-        else if (this.orientation == Dir.UP || this.orientation == Dir.DOWN){
-            if((this.startPoint.getX() == c.getX() && this.startPoint.getY() <= c.getY() && this.getEndpoint().getY() >= c.getY())
-                    && !hits.contains(c));
-            hits.add(c);
-        }
-        if (hits.size() >= this.length)
-        {
-            this.status = true;
-        }
+        status =  hits.size() >= length;
     }
 
     /**
@@ -87,13 +77,24 @@ public class Ship {
      * @return
      */
     public boolean isColliding(Ship other){
-        Coord thisEnd = this.getEndpoint();
-        Coord thatEnd = other.getEndpoint();
-        boolean xIntersect = (this.startPoint.getX() <= other.getStartPoint().getX() && thisEnd.getX() >= other.getStartPoint().getX()) ||
-                (this.startPoint.getX() <= thatEnd.getX() && thisEnd.getX() >= thatEnd.getX());
-        boolean yIntersect = (this.startPoint.getY() <= other.getStartPoint().getY() && thisEnd.getY() >= other.getStartPoint().getY()) ||
-                (this.startPoint.getY() <= thatEnd.getY() && thisEnd.getY() >= thatEnd.getY());
-        return xIntersect && yIntersect;
+        List<Coord> points = new ArrayList<>();
+        if(other.getDir() == Dir.HORIZONTAL){
+            for (int i = 0; i < other.length; i++){
+                points.add(new Coord(other.getStartPoint().x() + i, other.getStartPoint().y()));
+            }
+        }
+        else {
+            for (int i = 0; i < other.getLength(); i ++){
+                points.add(new Coord(other.getStartPoint().x(), other.getStartPoint().y() + i));
+            }
+        }
+        boolean flag = false;
+        for (Coord c :points) {
+            if (this.isHit(c)){
+                flag = true;
+            }
+        }
+        return flag;
     }
 
 
@@ -103,34 +104,23 @@ public class Ship {
      */
     public Coord getEndpoint(){
         Coord temp;
-        if (this.orientation == Dir.RIGHT){
-            temp = new Coord(this.startPoint.getX() + length - 1, this.startPoint.getY());
+        if (this.orientation == Dir.VERTICAL){
+            return new Coord(this.startPoint.x(), this.startPoint.y() + length);
         }
-        else if (this.orientation == Dir.LEFT){
-            temp = new Coord(this.startPoint.getX() - length + 1, this.startPoint.getY());
-        }
-        else if (this.orientation == Dir.UP){
-            temp = new Coord(this.startPoint.getX(), this.startPoint.getY()  - length + 1);
-        }
-        else {
-            temp = new Coord(this.startPoint.getX(), this.startPoint.getY() + length - 1);
-        }
-        return temp;
+        else {return new Coord(this.startPoint.x() + length, this.startPoint.y());}
     }
 
     public boolean isHit(Coord c){
-        if (this.orientation == Dir.LEFT || this.orientation == Dir.RIGHT){
-            if((this.startPoint.getY() == c.getY() && this.startPoint.getX() <= c.getX() && this.getEndpoint().getX() >= c.getX())
-                    && !hits.contains(c));
-            return true;
+        if (this.orientation == Dir.HORIZONTAL) {
+            return (this.startPoint.y() == c.y() &&
+                    c.x() >= this.startPoint.x() &&
+                    c.x() <= this.startPoint.x() + length);
         }
-        else if (this.orientation == Dir.UP || this.orientation == Dir.DOWN){
-            if((this.startPoint.getX() == c.getX() && this.startPoint.getY() <= c.getY() && this.getEndpoint().getY() >= c.getY())
-                    && !hits.contains(c));
-            return true;
-        }
-        else{
-            return false;
+        else {
+            return (this.startPoint.x() == c.x() &&
+                    this.startPoint.y() <= c.y() &&
+                    this.getEndpoint().y() >= c.y())
+                    && !hits.contains(c);
         }
     }
 }
