@@ -7,5 +7,5 @@ import java.util.Map;
 
 public record SetupJSON(@JsonProperty("height") int height,
                         @JsonProperty("width") int width,
-                        @JsonProperty("setup") Map<ShipType, Integer> boats) {
+                        @JsonProperty("fleet-spec") Map<ShipType, Integer> boats) {
 }

@@ -2,7 +2,17 @@ package server;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import game.*;
+import game.Coord;
+import game.Dir;
+import game.Player;
+import game.Ship;
+import game.ShipType;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import json.*;
 
 import java.io.IOException;
@@ -16,6 +26,7 @@ import java.util.Optional;
  */
 public class ProxyPlayer implements Player {
 
+    private static final int RESPONSE_TIMEOUT_SECS = 2;
     private final JsonSocketCommunication communication;
 
     private final String name;
@@ -63,7 +74,7 @@ public class ProxyPlayer implements Player {
         MessageJSON messageJSON = new MessageJSON("setup", setupArgs);
         this.communication.sendJson(messageJSON);
 
-        Optional<MessageJSON> response = this.communication.receiveJson();
+        Optional<MessageJSON> response = this.getResponse();
 
         if(response.isPresent() && "setup".equals(response.get().messageName())) {
             return this.parseFleetResponse(response.get().arguments());
@@ -79,7 +90,7 @@ public class ProxyPlayer implements Player {
         MessageJSON messageJson = new MessageJSON("hit", messageArgs);
         this.communication.sendJson(messageJson);
 
-        Optional<MessageJSON> response = this.communication.receiveJson();
+        Optional<MessageJSON> response = this.getResponse();
     }
 
     @Override
@@ -89,9 +100,26 @@ public class ProxyPlayer implements Player {
         MessageJSON messageJSON = new MessageJSON("win", messageArgs);
         this.communication.sendJson(messageJSON);
 
-        Optional<MessageJSON> response = this.communication.receiveJson();
+        Optional<MessageJSON> response = this.getResponse();
         this.communication.endCommunication();
     }
+
+    /**
+     * Waits for response from client for a max timeout. If there is no response or an invalid
+     * response, return an empty optional.
+     *
+     * @return an optional message JSON representation
+     */
+    private Optional<MessageJSON> getResponse() {
+        ExecutorService service = Executors.newSingleThreadExecutor();
+        Future<Optional<MessageJSON>> future = service.submit(this.communication::receiveJson);
+        try {
+            return future.get(RESPONSE_TIMEOUT_SECS, TimeUnit.SECONDS);
+        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+            return Optional.empty();
+        }
+    }
+
 
 
     /**

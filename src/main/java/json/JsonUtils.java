@@ -17,4 +17,17 @@ public class JsonUtils {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.convertValue(record, JsonNode.class);
     }
+
+    /**
+     *
+     *
+     * @param fromValue
+     * @param toValueType
+     * @return
+     * @param <T>
+     */
+    public static <T> T convertNodeToRecord(JsonNode fromValue, Class<T> toValueType) {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.convertValue(fromValue, toValueType);
+    }
 }
