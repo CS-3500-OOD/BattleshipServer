@@ -61,17 +61,15 @@ public class PlayerImp implements Player {
 
 
     @Override
-    public List<Ship> setup(Map<String, Integer> spec) {
-        Map<String, Integer> specifications = new HashMap<>(spec);
-        this.OpponentBoard = new CellStatus[specifications.get("width")][specifications.get("height")];
+    public List<Ship> setup(int height, int width, Map<ShipType, Integer> spec) {
+        Map<ShipType, Integer> specifications = new HashMap<>(spec);
+        this.OpponentBoard = new CellStatus[width][height];
         for(int i = 0; i < OpponentBoard.length; i ++){
             for (int j = 0; j < OpponentBoard[0].length; j++){
                 OpponentBoard[i][j] = CellStatus.EMPTY;
             }
         }
         this.fleet = new ArrayList<>();
-        specifications.remove("width");
-        specifications.remove("height");
         this.placeBoats(specifications);
         return this.fleet; //Format Ship list into format expected by server
 
@@ -79,18 +77,18 @@ public class PlayerImp implements Player {
 
 
     //Given a fleet from the server, place boats
-    private void placeBoats(Map<String, Integer> boats) {
+    private void placeBoats(Map<ShipType, Integer> boats) {
 
         //Initialize a hashmap of ship types paired to lengths
-        Map<String, Integer> reference = new HashMap<>();
-        reference.put("carrier", 6);
-        reference.put("battleShip", 5);
-        reference.put("destroyer", 4);
-        reference.put("submarine", 3);
+        Map<ShipType, Integer> reference = new HashMap<>();
+        reference.put(ShipType.CARRIER, 6);
+        reference.put(ShipType.BATTLESHIP, 5);
+        reference.put(ShipType.DESTROYER, 4);
+        reference.put(ShipType.SUBMARINE, 3);
         List<Ship> temp = new ArrayList<>();
 
         //Create initial set of Ship objects
-        for (String s : boats.keySet()){
+        for (ShipType s : boats.keySet()){
             for (int i = 0; i < boats.getOrDefault(s, 0); i ++){
                 temp.add(new Ship(reference.get(s)));
             }

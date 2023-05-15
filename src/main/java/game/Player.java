@@ -18,7 +18,7 @@ public interface Player {
      * @param specifications  has height, width, and each ship
      * @return  Fleet of placed ships in valid places
      */
-    List<Ship> setup(Map<String, Integer> specifications);
+    List<Ship> setup(int height, int width, Map<ShipType, Integer> specifications);
 
 
     /**

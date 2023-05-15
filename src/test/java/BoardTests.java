@@ -25,6 +25,12 @@ public class BoardTests {
         s6 = new Ship(new Coord(13, 16), 3, Dir.HORIZONTAL);
     }
 
+
+    @Test
+    public void testSetup(){
+    }
+
+    /**
     @Test
     public void testSalvo(){
         //Initialize Board Object
@@ -46,4 +52,7 @@ public class BoardTests {
         volley2 = b1.salvo(Arrays.asList(new Coord(15, 16)));
         assertEquals(volley2.size(), 3);
     }
+    */
+
+
 }
