@@ -1,5 +1,8 @@
 package game;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,7 +23,10 @@ public class Ship {
     private List<Coord> hits;
 
 
-    public Ship(Coord startPoint, int length, Dir orientation) {
+    @JsonCreator
+    public Ship(@JsonProperty("coord") Coord startPoint,
+                @JsonProperty("length") int length,
+                @JsonProperty("direction") Dir orientation) {
         this.status = false;
         this.startPoint = startPoint;
         this.length = length;

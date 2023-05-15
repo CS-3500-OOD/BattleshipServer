@@ -6,6 +6,12 @@ import java.util.Map;
 public interface Player {
 
 
+    /**
+     * Get the player's name.
+     *
+     * @return the player's name
+     */
+    String name();
 
     /**
      * Receives the shots fired by opposition in previous round, and returns the shots fired
