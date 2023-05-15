@@ -20,8 +20,8 @@ public class Server {
    * @param port the port to host the server on
    */
   public static void runServer(int port) {
-    GamesManager manager = new GamesManager();//port);
-   // manager.startHostingGames();
+    GamesManager manager = new GamesManager(port);
+    manager.startHostingGames();
   }
 
   /**

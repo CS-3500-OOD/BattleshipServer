@@ -1,9 +1,9 @@
 package server;
 
-import game.Coord;
-import game.Player;
-import game.Ship;
-import game.ShipType;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import game.*;
+import json.*;
 
 import java.io.IOException;
 import java.net.Socket;
@@ -57,8 +57,9 @@ public class ProxyPlayer implements Player {
     }
 
     @Override
-    public List<Ship> setup(Map<String, Integer> specifications) {
-        JsonNode setupArgs = new ObjectMapper().convertValue(specifications, JsonNode.class);
+    public List<Ship> setup(int height, int width, Map<ShipType, Integer> specifications) {
+        SetupJSON set = new SetupJSON(height, width, specifications);
+        JsonNode setupArgs = JsonUtils.serializeRecordToJson(set);
         MessageJSON messageJSON = new MessageJSON("setup", setupArgs);
         this.communication.sendJson(messageJSON);
 
@@ -67,7 +68,8 @@ public class ProxyPlayer implements Player {
         if(response.isPresent() && "setup".equals(response.get().messageName())) {
             return this.parseFleetResponse(response.get().arguments());
         }
-        return List.of(new Ship(new Coord(-1, -1), -1, Dir.DOWN));
+
+        return List.of(new Ship(new Coord(-1, -1), -1, Dir.VERTICAL));
     }
 
     @Override
