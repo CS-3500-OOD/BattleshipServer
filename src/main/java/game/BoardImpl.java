@@ -7,6 +7,7 @@ import java.util.Set;
 
 public class BoardImpl extends PlayerImp implements Board{
 
+    private Set<Coord> previousShotTracker = new HashSet<>();
 
     @Override
     public void mirrorClientPlacement(List<Ship> playerShips) {
@@ -24,6 +25,15 @@ public class BoardImpl extends PlayerImp implements Board{
             }
         }
         return new ArrayList<>(hitSet);
+    }
+
+    @Override
+    public boolean shotIsValid(Coord c) {
+        boolean flag = !(previousShotTracker.contains(c)) ||
+                !((c.x() >=0 && c.x() <= super.OpponentBoard[1].length) &&
+                        (c.y() >= 0 && c.y() <= super.OpponentBoard.length));
+        previousShotTracker.add(c);
+        return flag;
     }
 
 

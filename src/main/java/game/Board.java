@@ -27,4 +27,8 @@ public interface Board extends Player {
     List<Coord> reportDamage(List<Coord> shots);
 
 
+    boolean shotIsValid(Coord c);
+
+
+
 }

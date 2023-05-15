@@ -65,8 +65,8 @@ public class Referee implements IReferee{
 
             List<Coord> c2Return = client2.salvo(inboundc2);
             List<Coord> ref2Return = p2Board.salvo(inboundc2);
-
-            if(c1Return.size() != ref1Return.size() || ref2Return.size() != c2Return.size() || ref1Return.size() == 0 || ref2Return.size()==0){
+            boolean f1 = c1Return.size() != ref1Return.size() || ref2Return.size() != c2Return.size() || ref1Return.size() == 0 || ref2Return.size()==0;
+            if(f1 || this.invalidSalvo(c1Return, p1Board) || this.invalidSalvo(c2Return, p2Board)){
                 Pair<Boolean, Boolean> endStates = this.endgameCond(c1Return, c2Return, ref1Return, ref2Return);
                 client1.endGame(endStates.getKey());
                 client2.endGame(endStates.getVal());
@@ -80,6 +80,17 @@ public class Referee implements IReferee{
             inboundc1 = c2Return;
             inboundc2 = c1Return;
         }
+    }
+
+
+    private boolean invalidSalvo(List<Coord> salvo, Board board){
+        boolean flag = false;
+        for (Coord c: salvo) {
+            if (!board.shotIsValid(c)){
+                flag = true;
+            }
+        }
+        return flag;
     }
 
 
@@ -133,7 +144,6 @@ public class Referee implements IReferee{
             }
         }
         return flag &&
-                //TODO: Convert Ship Types to Enums
                 Objects.equals(gameInfo.get(ShipType.CARRIER), counter.get(6)) &&
                 Objects.equals(gameInfo.get(ShipType.BATTLESHIP), counter.get(5)) &&
                 Objects.equals(gameInfo.get(ShipType.DESTROYER), counter.get(4)) &&

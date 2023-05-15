@@ -62,7 +62,7 @@ public class PlayerImp implements Player {
     }
 
 
-    private boolean validShot(Coord c){
+    protected boolean validShot(Coord c){
         return this.OpponentBoard[c.x()][c.y()] == CellStatus.EMPTY;
     }
 
