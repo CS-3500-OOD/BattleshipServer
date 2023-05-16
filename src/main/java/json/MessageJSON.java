@@ -13,4 +13,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 public record MessageJSON(
         @JsonProperty("name") String messageName,
         @JsonProperty("arguments") JsonNode arguments) {
+
+
+  @Override
+  public String toString() {
+    return JsonUtils.serializeRecordToJson(this).toString();
+  }
 }
