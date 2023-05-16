@@ -20,7 +20,8 @@ dependencies {
     implementation("commons-cli:commons-cli:1.3.1")
     // https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-databind
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
-
+    // https://central.sonatype.com/artifact/org.apache.logging.log4j/log4j-api/2.20.0
+    implementation("org.apache.logging.log4j:log4j-api:2.20.0")
 }
 
 tasks.test {

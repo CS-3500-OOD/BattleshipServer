@@ -5,7 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class BoardImpl extends PlayerImp implements Board{
+public class BoardImpl extends PlayerImp implements Board {
 
     private Set<Coord> previousShotTracker = new HashSet<>();
 

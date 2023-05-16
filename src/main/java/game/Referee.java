@@ -1,6 +1,11 @@
 package game;
 
 import java.util.*;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.MarkerManager;
+import org.apache.logging.log4j.MarkerManager.Log4jMarker;
 
 public class Referee implements IReferee{
     private final Board p1Board;
@@ -8,10 +13,19 @@ public class Referee implements IReferee{
     private final Player client1;
     private final Player client2;
 
+    private final Marker gameUniqueMarker;
 
-    public Referee(Player p1, Player p2){
+    private static final Logger logger = LogManager.getLogger(Referee.class);
+
+
+    public Referee(Player p1, Player p2) {
+        this(p1, p2, UUID.randomUUID().toString());
+    }
+
+    public Referee(Player p1, Player p2, String gameUUID){
         this.client1 = p1;
         this.client2 = p2;
+        this.gameUniqueMarker = new Log4jMarker(gameUUID);
         this.p1Board = new BoardImpl();
         this.p2Board = new BoardImpl();
     }
@@ -24,6 +38,8 @@ public class Referee implements IReferee{
      */
     @Override
     public void run() {
+        logger.info(this.gameUniqueMarker, "Starting game...");
+
         //pick random height and width between 20 and 50, and add to game info
         Random r = new Random();
         int height = r.nextInt(30) + 20;
@@ -36,16 +52,27 @@ public class Referee implements IReferee{
             gameInfo.put(s, r.nextInt(3));
         }
 
+        logger.info(this.gameUniqueMarker, "Board [" + width + "x" + height + "] - " + Arrays.toString(gameInfo.entrySet().toArray()));
+
         //Call Place Boats on each client
         //Retrieve Placed fleets
         List<Ship> c1Ships = client1.setup(height, width, gameInfo);
         List<Ship> c2Ships = client2.setup(height, width, gameInfo);
         p1Board.setup(height, width, gameInfo);
         p2Board.setup(height, width, gameInfo);
+        logger.info(this.gameUniqueMarker, "Setup Stage:");
+        logger.info(this.gameUniqueMarker, this.client1.name() + " - " + Arrays.toString(c1Ships.toArray()));
+        logger.info(this.gameUniqueMarker, this.client2.name() + " - " + Arrays.toString(c2Ships.toArray()));
+
         //check fleets for validity
-        if (!this.isValidFleet(c1Ships, gameInfo) || !this.isValidFleet(c2Ships, gameInfo)){
-            client1.endGame(this.isValidFleet(c1Ships, gameInfo));
-            client2.endGame(this.isValidFleet(c2Ships, gameInfo));
+        boolean c1Valid = this.isValidFleet(c1Ships, gameInfo);
+        boolean c2Valid = this.isValidFleet(c2Ships, gameInfo);
+        if (!c1Valid || !c2Valid) {
+            logger.info(this.gameUniqueMarker, "A player did not provide a valid setup configuration.");
+            logger.info(this.gameUniqueMarker, c1Valid ? (this.client1.name() + " won") : (c2Valid ? (this.client2.name() + " won") : "Both players lost"));
+
+            client1.endGame(c1Valid);
+            client2.endGame(c2Valid);
         }
         // Place Boats on tracking boards
         p1Board.mirrorClientPlacement(c1Ships);
@@ -56,22 +83,52 @@ public class Referee implements IReferee{
         List<Coord> inboundc2 = new ArrayList<>();
         List<Coord> inboundc1 = new ArrayList<>();
 
+        logger.info(this.gameUniqueMarker, "Starting game loop.");
         //TODO: Extract to Helper
         while(true){
             //Send old salvos, retrieve new ones, and retrieve ref versions
             List<Coord> c1Return = client1.salvo(inboundc1);
             List<Coord> ref1Return = p1Board.salvo(inboundc1);
-            System.out.println( "Surviving Ships" + ref1Return.size());
 
             List<Coord> c2Return = client2.salvo(inboundc2);
             List<Coord> ref2Return = p2Board.salvo(inboundc2);
-            boolean f1 = c1Return.size() != ref1Return.size() || ref2Return.size() != c2Return.size() || ref1Return.size() == 0 || ref2Return.size()==0;
-            if(f1 || this.invalidSalvo(c1Return, p1Board) || this.invalidSalvo(c2Return, p2Board)){
-                Pair<Boolean, Boolean> endStates = this.endgameCond(c1Return, c2Return, ref1Return, ref2Return);
-                client1.endGame(endStates.getKey());
-                client2.endGame(endStates.getVal());
-                return;
+
+            logger.info(this.gameUniqueMarker, "Volley sent:");
+            logger.info(this.gameUniqueMarker, client1.name() + " " + Arrays.toString(c1Return.toArray()));
+            logger.info(this.gameUniqueMarker, client2.name() + " " + Arrays.toString(c2Return.toArray()));
+
+            boolean p2Won = ref1Return.size() == 0;
+            boolean p1Won = ref2Return.size() == 0;
+            if(p1Won || p2Won) {
+                String winner = p2Won ? (p1Won ? "Draw!" : client2.name() + " won!") : (client1.name() + " won!");
+                logger.info(this.gameUniqueMarker, "Game Over! " + winner);
+                client1.endGame(p1Won);
+                client2.endGame(p2Won);
             }
+            else {
+
+                boolean p1InvalidVolley = c1Return.size() != ref1Return.size() || this.invalidSalvo(c1Return, p1Board);
+                boolean p2InvalidVolley = c2Return.size() != ref2Return.size() || this.invalidSalvo(c2Return, p2Board);
+
+                if(p1InvalidVolley || p2InvalidVolley) {
+                    client1.endGame(!p1InvalidVolley);
+                    client2.endGame(!p2InvalidVolley);
+
+                    logger.info(this.gameUniqueMarker, "A player did not return a valid volley");
+                    if (p1InvalidVolley && p2InvalidVolley) {
+                        logger.info(this.gameUniqueMarker, "Both players lost");
+                    }
+                    else if(p1InvalidVolley) {
+                        logger.info(this.gameUniqueMarker, client2.name() + " won!");
+                    }
+                    else {
+                        logger.info(this.gameUniqueMarker, client1.name() + " won!");
+                    }
+                    return;
+                }
+            }
+
+
             //Now give players each of their hits, by giving return salvos to opponent boards
             List<Coord> p1Hits = p2Board.reportDamage(c1Return);
             List<Coord> p2Hits = p1Board.reportDamage(c2Return);
@@ -79,6 +136,10 @@ public class Referee implements IReferee{
             client2.hits(p2Hits);
             inboundc1 = c2Return;
             inboundc2 = c1Return;
+
+            logger.info(this.gameUniqueMarker, "Reporting successful hits:");
+            logger.info(this.gameUniqueMarker, client1.name() + " succeeded in hitting - " + Arrays.toString(p1Hits.toArray()));
+            logger.info(this.gameUniqueMarker, client2.name() + " succeeded in hitting - " + Arrays.toString(p2Hits.toArray()));
         }
     }
 
@@ -91,39 +152,6 @@ public class Referee implements IReferee{
             }
         }
         return flag;
-    }
-
-
-    private Pair<Boolean, Boolean> endgameCond(List<Coord> c1Return, List<Coord> c2Return, List<Coord> ref1Return, List<Coord> ref2Return) {
-        boolean c1Win;
-        boolean c2Win;
-        if(c1Return.size() == ref1Return.size() && c2Return.size() != ref2Return.size()){
-            c1Win = true;
-            c2Win = false;
-        } else if (c2Return.size() == ref2Return.size() && c1Return.size() != ref1Return.size()) {
-            c1Win = false;
-            c2Win = true;
-        }
-        else if (ref1Return.size() == 0 && ref2Return.size() != 0){
-            c1Win = false;
-            c2Win = true;
-        }
-        else if (ref2Return.size() == 0 && ref1Return.size() != 0){
-            c1Win = true;
-            c2Win = false;
-        }
-        else if (ref1Return.size() == 0 && ref2Return.size() != 0){
-            c1Win = false;
-            c2Win = true;
-        } else if (ref1Return.size() == 0 && ref2Return.size() == 0) {
-            c1Win = true;
-            c2Win = true;
-        }
-        else {
-            c1Win = false;
-            c2Win = false;
-        }
-        return new Pair<Boolean, Boolean>(c1Win, c2Win);
     }
 
 

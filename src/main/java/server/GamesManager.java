@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -52,9 +53,11 @@ public class GamesManager {
    * queue. When the server is stopped, then the loop ends, and the ExecutorService shuts down.
    */
   public void startHostingGames() {
+    Server.logger.info("Submitting ClientsAcceptor and InputListener threads.");
     this.executorService.submit(clientsAcceptor::acceptClients);
     this.executorService.submit(inputListener::acceptInput);
 
+    Server.logger.info("Starting to attempt spawning new games");
     while(!stopServerFlag) {
       if(!this.clientsWaitingToPlay.isEmpty()) {
         ProxyPlayer nextPlayer = this.clientsWaitingToPlay.remove(0);
@@ -68,7 +71,7 @@ public class GamesManager {
       }
     }
 
-    System.out.println("Shutting down server...");
+    Server.logger.info("Shutting down server...");
     this.executorService.shutdown();
     this.executorService.shutdownNow();
   }
@@ -150,8 +153,10 @@ public class GamesManager {
    */
   private boolean attemptSpawnGame(Player player1, Player player2) {
     try {
+      String gameId = UUID.randomUUID().toString();
       Referee referee = new Referee(player1, player2);
       this.executorService.submit(referee::run);
+      Server.logger.info("Successfully spawned new game [" + gameId + "] (" + player1.name() + ", " + player2.name() + ")");
       return true;
     }
     catch(RejectedExecutionException e) {

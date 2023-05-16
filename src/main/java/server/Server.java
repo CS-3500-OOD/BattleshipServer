@@ -6,6 +6,8 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This is the entrypoint for the server.Server. Running this file will start the server on the given port
@@ -14,12 +16,14 @@ import org.apache.commons.cli.ParseException;
 public class Server {
 
   private static final int DEFAULT_PORT = 35001;
+  static final Logger logger = LogManager.getLogger(Server.class);
 
   /**
    * Runs the server on the given port until the server is shutdown.
    * @param port the port to host the server on
    */
   public static void runServer(int port) {
+    logger.info("Starting server on port " + port);
     GamesManager manager = new GamesManager(port);
     manager.startHostingGames();
   }
@@ -29,7 +33,7 @@ public class Server {
    * @param errorMessage the error to display
    */
   public static void shutdownServerWithError(String errorMessage) {
-    System.out.println("ERROR: " + errorMessage);
+    logger.error("ERROR: " + errorMessage);
     System.exit(1);
   }
 
