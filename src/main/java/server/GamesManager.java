@@ -82,6 +82,7 @@ public class GamesManager {
    * @param player the player to add
    */
   public synchronized void addPlayerToQueue(ProxyPlayer player) {
+    Server.logger.info("Adding player " + player.name() + " [" + player.getGameType() + "] to queue");
     this.clientsWaitingToPlay.add(player);
   }
 

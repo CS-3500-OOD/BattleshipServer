@@ -26,9 +26,11 @@ public class ClientSignupAttempt implements Runnable {
   @Override
   public void run() {
     try {
+      Server.logger.info("Establishing communication with " + client);
       JsonSocketCommunication communication = new JsonSocketCommunication(this.client);
+      Server.logger.info("Sending join request");
       communication.sendJson(new MessageJSON("join", JsonNodeFactory.instance.objectNode()));
-
+      Server.logger.info("Parsing join request");
       Optional<MessageJSON> messageJSON = communication.receiveJson();
 
       if(messageJSON.isPresent() && "join".equals(messageJSON.get().messageName())) {
@@ -40,9 +42,10 @@ public class ClientSignupAttempt implements Runnable {
         this.client.close();
       }
     }
-    catch (IOException ignored) {
+    catch (IOException e) {
       // client connection interrupted or client sent bad input
       // TODO: separate catching network issue versus parsing issues
+      Server.logger.error("Issue establishing connection: " + e);
     }
   }
 }

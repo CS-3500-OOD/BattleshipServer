@@ -22,6 +22,9 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.15.0")
     // https://central.sonatype.com/artifact/org.apache.logging.log4j/log4j-api/2.20.0
     implementation("org.apache.logging.log4j:log4j-api:2.20.0")
+    // https://central.sonatype.com/artifact/org.apache.logging.log4j/log4j-core/2.20.0
+    implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+
 }
 
 tasks.test {
@@ -29,7 +32,7 @@ tasks.test {
 }
 
 application {
-    mainClass.set("server.Server")
+    mainClass.set("client.Client")
 }
 
 tasks {

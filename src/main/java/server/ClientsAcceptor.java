@@ -50,8 +50,8 @@ public class ClientsAcceptor {
     ExecutorService signupExecutorService = Executors.newFixedThreadPool(MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME);
 
     try(ServerSocket serverSocket = new ServerSocket(this.port)) {
+      Server.logger.info("Accepting clients on" + serverSocket);
       while(!this.stopAcceptingClients) {
-
         Socket client = serverSocket.accept();
         this.attemptToSignupClient(signupExecutorService, client);
       }
@@ -73,6 +73,7 @@ public class ClientsAcceptor {
    */
   private void attemptToSignupClient(ExecutorService executor, Socket client) {
     try {
+      Server.logger.info("Attempting to signup client: " + client.toString());
       Future<?> future = executor.submit(new ClientSignupAttempt(this.manager, client));
       future.get(MAX_SIGNUP_TIME_SECS, TimeUnit.SECONDS);
     }

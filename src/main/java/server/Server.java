@@ -6,8 +6,10 @@ import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 
 /**
  * This is the entrypoint for the server.Server. Running this file will start the server on the given port
@@ -23,6 +25,8 @@ public class Server {
    * @param port the port to host the server on
    */
   public static void runServer(int port) {
+    Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
+
     logger.info("Starting server on port " + port);
     GamesManager manager = new GamesManager(port);
     manager.startHostingGames();
