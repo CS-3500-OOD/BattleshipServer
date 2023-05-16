@@ -2,9 +2,13 @@ package server;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.net.Socket;
 
+import java.util.Optional;
+import json.JsonSocketCommunication;
 import json.MessageJSON;
 import json.PlayerJSON;
 
@@ -22,12 +26,13 @@ public class ClientSignupAttempt implements Runnable {
   @Override
   public void run() {
     try {
-      ObjectMapper mapper = new ObjectMapper();
-      JsonParser parser = mapper.createParser(this.client.getInputStream());
-      MessageJSON messageJSON = mapper.readValue(parser, MessageJSON.class);
+      JsonSocketCommunication communication = new JsonSocketCommunication(this.client);
+      communication.sendJson(new MessageJSON("join", JsonNodeFactory.instance.objectNode()));
 
-      if("join".equals(messageJSON.messageName())) {
-        PlayerJSON playerJSON = mapper.convertValue(messageJSON.arguments(), PlayerJSON.class);
+      Optional<MessageJSON> messageJSON = communication.receiveJson();
+
+      if(messageJSON.isPresent() && "join".equals(messageJSON.get().messageName())) {
+        PlayerJSON playerJSON = new ObjectMapper().convertValue(messageJSON.get().arguments(), PlayerJSON.class);
         ProxyPlayer player = new ProxyPlayer(this.client, playerJSON.name(), playerJSON.gameType());
         manager.addPlayerToQueue(player);
       }
