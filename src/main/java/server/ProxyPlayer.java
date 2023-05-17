@@ -7,6 +7,9 @@ import game.Dir;
 import game.Player;
 import game.Ship;
 import game.ShipType;
+import java.util.Arrays;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -112,10 +115,11 @@ public class ProxyPlayer implements Player {
      */
     private Optional<MessageJSON> getResponse() {
         ExecutorService service = Executors.newSingleThreadExecutor();
-        Future<Optional<MessageJSON>> future = service.submit(this.communication::receiveJson);
+        Callable<Optional<MessageJSON>> callable = this.communication::receiveJson;
+        Future<Optional<MessageJSON>> future = service.submit(callable);
         try {
             return future.get(RESPONSE_TIMEOUT_SECS, TimeUnit.SECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
+        } catch (CancellationException | InterruptedException | ExecutionException | TimeoutException e) {
             return Optional.empty();
         }
     }
@@ -129,9 +133,14 @@ public class ProxyPlayer implements Player {
      * @return the list of coordinates
      */
     private List<Coord> parseVolleyResponse(JsonNode node) {
-        ObjectMapper mapper = new ObjectMapper();
-        VolleyJSON volley = mapper.convertValue(node, VolleyJSON.class);
-        return volley.coordinates();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            VolleyJSON volley = mapper.convertValue(node, VolleyJSON.class);
+            return volley.coordinates();
+        }
+        catch (IllegalArgumentException e) {
+            return List.of(new Coord(-1, -1));
+        }
     }
 
     /**
@@ -141,8 +150,13 @@ public class ProxyPlayer implements Player {
      * @return the list of Ships
      */
     private List<Ship> parseFleetResponse(JsonNode node) {
-        ObjectMapper mapper = new ObjectMapper();
-        FleetJSON volley = mapper.convertValue(node, FleetJSON.class);
-        return volley.fleet();
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            FleetJSON volley = mapper.convertValue(node, FleetJSON.class);
+            return volley.fleet();
+        }
+        catch (IllegalArgumentException e) {
+            return List.of(new Ship(new Coord(-1, -1), -1, Dir.HORIZONTAL));
+        }
     }
 }

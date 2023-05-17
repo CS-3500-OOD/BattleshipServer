@@ -73,6 +73,7 @@ public class Referee implements IReferee{
 
             client1.endGame(c1Valid);
             client2.endGame(c2Valid);
+            return;
         }
         // Place Boats on tracking boards
         p1Board.mirrorClientPlacement(c1Ships);
@@ -104,6 +105,7 @@ public class Referee implements IReferee{
                 logger.info(this.gameUniqueMarker, "Game Over! " + winner);
                 client1.endGame(p1Won);
                 client2.endGame(p2Won);
+                return;
             }
             else {
 

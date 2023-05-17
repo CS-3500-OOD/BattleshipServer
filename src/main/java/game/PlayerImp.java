@@ -107,7 +107,6 @@ public class PlayerImp implements Player {
          for (Ship s : temp){
              boolean NicksFlag = true;
                do {
-                   System.out.println(this.fleet.size());
                    int x = r.nextInt(this.OpponentBoard.length);
                    int y = r.nextInt(this.OpponentBoard[0].length);
                    Dir dir = allDirs.get(r.nextInt(2));

@@ -49,12 +49,13 @@ public class ClientsAcceptor {
 
     ExecutorService signupExecutorService = Executors.newFixedThreadPool(MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME);
 
-    try(ServerSocket serverSocket = new ServerSocket(this.port)) {
+    try {
+      ServerSocket serverSocket = new ServerSocket(this.port);
       Server.logger.info("Accepting clients on" + serverSocket);
       while(!this.stopAcceptingClients) {
-        Socket client = serverSocket.accept();
-        this.attemptToSignupClient(signupExecutorService, client);
+        this.attemptToSignupClient(signupExecutorService, serverSocket);
       }
+      serverSocket.close();
     } catch (IOException e) {
       Server.shutdownServerWithError("Unable to start server.Server on port " + this.port);
     }
@@ -65,24 +66,18 @@ public class ClientsAcceptor {
   }
 
   /**
-   * Spawns a new thread to sign up the client connected to the given socket. If the signup is
+   * Spawns a new thread to sign up a client that connects to the given server socket. If the signup is
    * unsuccessful or there is no available room to queue the signup, then the client connection will
    * be closed.
    * @param executor the ExecutorService to spawn signup threads with
-   * @param client the client socket to sign up
+   * @param serverSocket the server socket to accept clients
    */
-  private void attemptToSignupClient(ExecutorService executor, Socket client) {
+  private void attemptToSignupClient(ExecutorService executor, ServerSocket serverSocket) {
     try {
-      Server.logger.info("Attempting to signup client: " + client.toString());
-      Future<?> future = executor.submit(new ClientSignupAttempt(this.manager, client));
+      Future<?> future = executor.submit(new ClientSignupAttempt(this.manager, serverSocket));
       future.get(MAX_SIGNUP_TIME_SECS, TimeUnit.SECONDS);
     }
-    catch (RejectedExecutionException | ExecutionException | InterruptedException | TimeoutException e) {
-      // TODO: send message to client explaining there are too many people signing up at one time
-      try {
-        client.close();
-      } catch (IOException ignored) {
-      }
+    catch (RejectedExecutionException | ExecutionException | InterruptedException | TimeoutException ignored) {
     }
   }
 }

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Optional;
@@ -22,7 +23,7 @@ import server.Server;
 public class JsonSocketCommunication {
 
     private final Socket connection;
-    private final JsonParser input;
+    private JsonParser input;
     private final PrintWriter output;
 
     private static final Logger logger = LogManager.getLogger(JsonSocketCommunication.class);
@@ -36,9 +37,8 @@ public class JsonSocketCommunication {
      */
     public JsonSocketCommunication(Socket connection) throws IOException {
         this.connection = connection;
-        this.input = new ObjectMapper().createParser(connection.getInputStream());
+        this.input = null;
         this.output = new PrintWriter(connection.getOutputStream());
-
         this.marker = new Log4jMarker("COMM_" + connection);
     }
 
@@ -61,10 +61,13 @@ public class JsonSocketCommunication {
      */
     public Optional<MessageJSON> receiveJson() {
         try {
+            if(this.input == null) {
+                this.input = new ObjectMapper().createParser(connection.getInputStream());
+            }
             MessageJSON messageJSON = this.input.readValueAs(MessageJSON.class);
             logger.info(this.marker, "RECEIVED: " + messageJSON);
             return Optional.of(messageJSON);
-        } catch (IOException e) {
+        } catch (IllegalArgumentException | IOException e) {
             logger.info(this.marker, "RECEIVED: deserialization issue");
             return Optional.empty();
         }

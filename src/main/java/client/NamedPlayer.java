@@ -16,4 +16,9 @@ public class NamedPlayer extends PlayerImp {
     return this.name;
   }
 
+  @Override
+  public void endGame(boolean won) {
+    System.out.println(name + (won ? " won!" : " lost!"));
+  }
+
 }

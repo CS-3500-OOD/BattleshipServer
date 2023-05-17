@@ -123,7 +123,6 @@ public class ProxyReferee implements Runnable{
     this.player.endGame(winJSON.won());
     this.isGameOver = true;
 
-    this.communication.sendJson(new MessageJSON("hit", VOID_JSON));
-
+    this.communication.sendJson(new MessageJSON("win", VOID_JSON));
   }
 }
