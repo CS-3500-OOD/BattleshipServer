@@ -1,7 +1,10 @@
 package client;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import game.Coord;
 import game.Player;
@@ -91,8 +94,7 @@ public class ProxyReferee implements Runnable{
 
     List<Ship> ships = this.player.setup(setupJSON.height(), setupJSON.width(), setupJSON.boats());
 
-    FleetJSON fleetJSON = new FleetJSON(ships);
-    JsonNode node = JsonUtils.serializeRecordToJson(fleetJSON);
+    JsonNode node = serializeFleet(ships);
     MessageJSON response = new MessageJSON("setup", node);
     this.communication.sendJson(response);
   }
@@ -124,5 +126,25 @@ public class ProxyReferee implements Runnable{
     this.isGameOver = true;
 
     this.communication.sendJson(new MessageJSON("win", VOID_JSON));
+  }
+
+  private static JsonNode serializeFleet(List<Ship> ships) {
+    JsonNodeFactory factory = JsonNodeFactory.instance;
+    ObjectMapper mapper = new ObjectMapper();
+
+    ArrayNode arrayNode = factory.arrayNode();
+
+    for(Ship ship : ships) {
+      ObjectNode shipNode = factory.objectNode();
+      shipNode.set("coord", mapper.convertValue(ship.getStartPoint(), JsonNode.class));
+      shipNode.set("length", factory.numberNode(ship.getLength()));
+      shipNode.set("direction", mapper.convertValue(ship.getDir(), JsonNode.class));
+      arrayNode.add(shipNode);
+    }
+
+    ObjectNode fleet = factory.objectNode();
+    fleet.set("fleet", arrayNode);
+
+    return fleet;
   }
 }

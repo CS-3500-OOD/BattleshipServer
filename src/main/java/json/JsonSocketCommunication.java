@@ -49,7 +49,7 @@ public class JsonSocketCommunication {
      */
     public void sendJson(MessageJSON messageJson) {
         JsonNode message = JsonUtils.serializeRecordToJson(messageJson);
-        logger.info(this.marker, "SENDING: " + message);
+        logger.info(this.marker, "SENDING: \n" + JsonUtils.prettifyJSON(messageJson) + "\n");
         this.output.println(message);
         this.output.flush();
     }
@@ -65,7 +65,7 @@ public class JsonSocketCommunication {
                 this.input = new ObjectMapper().createParser(connection.getInputStream());
             }
             MessageJSON messageJSON = this.input.readValueAs(MessageJSON.class);
-            logger.info(this.marker, "RECEIVED: " + messageJSON);
+            logger.info(this.marker, "RECEIVED: \n" + JsonUtils.prettifyJSON(messageJSON) + "\n");
             return Optional.of(messageJSON);
         } catch (IllegalArgumentException | IOException e) {
             logger.info(this.marker, "RECEIVED: deserialization issue");

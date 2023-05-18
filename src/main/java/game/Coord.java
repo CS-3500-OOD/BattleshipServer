@@ -23,4 +23,10 @@ public record Coord(int x, int y) {
     public int hashCode() {
         return Integer.hashCode(this.x) + Integer.hashCode(this.y);
     }
+
+
+    @Override
+    public String toString() {
+        return "(" + this.x + ", " + this.y + ")";
+    }
 }

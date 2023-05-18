@@ -129,4 +129,10 @@ public class Ship {
                     && !hits.contains(c);
         }
     }
+
+
+    @Override
+    public String toString() {
+        return "<Ship: " + this.startPoint + " " + this.length + " " + this.orientation + " " + this.hits + ">";
+    }
 }
