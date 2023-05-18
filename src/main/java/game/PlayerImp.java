@@ -14,6 +14,8 @@ public class PlayerImp implements Player {
 
     private static final String CPU_NAME = "SERVER_CPU";
 
+    private List<Coord> possibleShots;
+
     @Override
     public String name() {
         return CPU_NAME;
@@ -48,22 +50,20 @@ public class PlayerImp implements Player {
         for (int i = 0; i < number; i++){
             Coord currentCoord;
             do {
-                int x = r.nextInt(OpponentBoard.length);
-                int y = r.nextInt(OpponentBoard[0].length);
-                currentCoord = new Coord(x, y);
-            }while(retList.contains(currentCoord) && ! this.validShot(currentCoord));
+                currentCoord = this.possibleShots.remove(r.nextInt(this.possibleShots.size()));
+            } while(retList.contains(currentCoord) && ! this.validShot(currentCoord));
             retList.add(currentCoord);
 
         }
         for (Coord shot : retList){
-            OpponentBoard[shot.x()][shot.y()] = CellStatus.SPLASH;
+            OpponentBoard[shot.y()][shot.x()] = CellStatus.SPLASH;
         }
         return retList;
     }
 
 
     protected boolean validShot(Coord c){
-        return this.OpponentBoard[c.x()][c.y()] == CellStatus.EMPTY;
+        return this.OpponentBoard[c.y()][c.x()] == CellStatus.EMPTY;
     }
 
 
@@ -71,9 +71,11 @@ public class PlayerImp implements Player {
     public List<Ship> setup(int height, int width, Map<ShipType, Integer> spec) {
         Map<ShipType, Integer> specifications = new HashMap<>(spec);
         this.OpponentBoard = new CellStatus[width][height];
-        for(int i = 0; i < OpponentBoard.length; i ++){
-            for (int j = 0; j < OpponentBoard[0].length; j++){
-                OpponentBoard[i][j] = CellStatus.EMPTY;
+        this.possibleShots = new ArrayList<>();
+        for(int row = 0; row < OpponentBoard.length; row ++){
+            for (int col = 0; col < OpponentBoard[0].length; col++){
+                OpponentBoard[row][col] = CellStatus.EMPTY;
+                this.possibleShots.add(new Coord(col, row));
             }
         }
         this.fleet = new ArrayList<>();
@@ -101,14 +103,14 @@ public class PlayerImp implements Player {
             }
         }
         Random r = new Random();
-        List<Dir> allDirs = new ArrayList<>(Arrays.asList(Dir.VERTICAL, Dir.VERTICAL));
+        List<Dir> allDirs = new ArrayList<>(Arrays.asList(Dir.VERTICAL, Dir.HORIZONTAL));
 
         //Repeatedly place ships at random valid locations until all ships are placed.
          for (Ship s : temp){
             boolean NicksFlag = true;
             do {
-                int x = r.nextInt(this.OpponentBoard.length);
-                int y = r.nextInt(this.OpponentBoard[0].length);
+                int x = r.nextInt(this.OpponentBoard[0].length);
+                int y = r.nextInt(this.OpponentBoard.length);
                 Dir dir = allDirs.get(r.nextInt(2));
                 s.place(new Coord(x, y), dir);
                 if (this.validCoords(s)) {
@@ -125,8 +127,8 @@ public class PlayerImp implements Player {
     }
 
     private boolean validCoords(Ship s) {
-        return s.getStartPoint().x() >= 0 && s.getEndpoint().x() >= 0 && s.getStartPoint().x() < OpponentBoard.length
-                && s.getEndpoint().y() < OpponentBoard[0].length;
+        return s.getStartPoint().x() >= 0 && s.getEndpoint().x() >= 0 && s.getStartPoint().y() < OpponentBoard.length
+                && s.getEndpoint().x() < OpponentBoard[0].length;
     }
 
     /**
@@ -137,7 +139,7 @@ public class PlayerImp implements Player {
     @Override
     public void hits(List<Coord> shots) {
         for (Coord shot : shots) {
-            this.OpponentBoard[shot.x()][shot.y()] = CellStatus.HIT;
+            this.OpponentBoard[shot.y()][shot.x()] = CellStatus.HIT;
         }
     }
 

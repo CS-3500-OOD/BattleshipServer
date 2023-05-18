@@ -7,7 +7,6 @@ import game.Dir;
 import game.Player;
 import game.Ship;
 import game.ShipType;
-import java.util.Arrays;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -120,6 +119,7 @@ public class ProxyPlayer implements Player {
         try {
             return future.get(RESPONSE_TIMEOUT_SECS, TimeUnit.SECONDS);
         } catch (CancellationException | InterruptedException | ExecutionException | TimeoutException e) {
+            Server.logger.error(this.name + " COULD NOT RETRIEVE RESPONSE: " + e);
             return Optional.empty();
         }
     }

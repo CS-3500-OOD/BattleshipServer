@@ -11,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
@@ -159,7 +160,17 @@ public class GamesManager {
     try {
       String gameId = UUID.randomUUID().toString();
       Referee referee = new Referee(player1, player2);
-      this.executorService.submit(referee::run);
+      Callable<Boolean> game = () -> {
+        try {
+          referee.run();
+        }
+        catch (Exception e) {
+          System.out.println("XXXXXXXX ISSUE " + e);
+          return false;
+        }
+        return true;
+      };
+      this.executorService.submit(game);
       Server.logger.info("Successfully spawned new game [" + gameId + "] (" + player1.name() + ", " + player2.name() + ")");
       return true;
     }
