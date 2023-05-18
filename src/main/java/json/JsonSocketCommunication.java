@@ -5,16 +5,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.MarkerManager.Log4jMarker;
-import server.Server;
 
 /**
  * Simple Socket communication class to send/receive Json. Json is formatted as a MessageJson structure.
@@ -26,7 +23,7 @@ public class JsonSocketCommunication {
     private JsonParser input;
     private final PrintWriter output;
 
-    private static final Logger logger = LogManager.getLogger(JsonSocketCommunication.class);
+//    private static final Logger logger = LogManager.getLogger(JsonSocketCommunication.class);
     private final Marker marker;
 
     /**
@@ -49,7 +46,7 @@ public class JsonSocketCommunication {
      */
     public void sendJson(MessageJSON messageJson) {
         JsonNode message = JsonUtils.serializeRecordToJson(messageJson);
-        logger.info(this.marker, "SENDING: \n" + JsonUtils.prettifyJSON(messageJson) + "\n");
+//        logger.info(this.marker, "SENDING: \n" + JsonUtils.prettifyJSON(messageJson) + "\n");
         this.output.println(message);
         this.output.flush();
     }
@@ -65,10 +62,10 @@ public class JsonSocketCommunication {
                 this.input = new ObjectMapper().createParser(connection.getInputStream());
             }
             MessageJSON messageJSON = this.input.readValueAs(MessageJSON.class);
-            logger.info(this.marker, "RECEIVED: \n" + JsonUtils.prettifyJSON(messageJSON) + "\n");
+//            logger.info(this.marker, "RECEIVED: \n" + JsonUtils.prettifyJSON(messageJSON) + "\n");
             return Optional.of(messageJSON);
         } catch (IllegalArgumentException | IOException e) {
-            logger.info(this.marker, "RECEIVED: deserialization issue");
+//            logger.info(this.marker, "RECEIVED: deserialization issue");
             return Optional.empty();
         }
     }

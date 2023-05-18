@@ -20,7 +20,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class ClientsAcceptor {
 
-  private static final int MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME = 3;
+  private static final int MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME = 4;
   private static final int MAX_SIGNUP_TIME_SECS = 2;
   private final GamesManager manager;
   private final int port;

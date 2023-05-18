@@ -105,22 +105,22 @@ public class PlayerImp implements Player {
 
         //Repeatedly place ships at random valid locations until all ships are placed.
          for (Ship s : temp){
-             boolean NicksFlag = true;
-               do {
-                   int x = r.nextInt(this.OpponentBoard.length);
-                   int y = r.nextInt(this.OpponentBoard[0].length);
-                   Dir dir = allDirs.get(r.nextInt(2));
-                   s.place(new Coord(x, y), dir);
-                   if (this.validCoords(s)) {
-                       for (Ship s2 : this.fleet) {
-                           if (s.isColliding(s2)) {
-                               NicksFlag = false;
-                           }
+            boolean NicksFlag = true;
+            do {
+                int x = r.nextInt(this.OpponentBoard.length);
+                int y = r.nextInt(this.OpponentBoard[0].length);
+                Dir dir = allDirs.get(r.nextInt(2));
+                s.place(new Coord(x, y), dir);
+                if (this.validCoords(s)) {
+                    for (Ship s2 : this.fleet) {
+                        if (s.isColliding(s2)) {
+                            NicksFlag = false;
                        }
                    }
-                   fleet.add(s);
-               } while(NicksFlag);
+               }
 
+            } while(!NicksFlag);
+            fleet.add(s);
         }
     }
 

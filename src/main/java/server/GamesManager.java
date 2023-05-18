@@ -60,6 +60,8 @@ public class GamesManager {
     Server.logger.info("Starting to attempt spawning new games");
     while(!stopServerFlag) {
       if(!this.clientsWaitingToPlay.isEmpty()) {
+        Server.logger.info("Queue: " + this.clientsWaitingToPlay);
+
         ProxyPlayer nextPlayer = this.clientsWaitingToPlay.remove(0);
 
         boolean success = this.attemptDelegateGameCreationForPlayer(nextPlayer);
@@ -127,6 +129,7 @@ public class GamesManager {
   private Optional<ProxyPlayer> getNextMultiPlayer() {
     for (ProxyPlayer current : this.clientsWaitingToPlay) {
       if (current.getGameType() == GameType.MULTI) {
+        this.clientsWaitingToPlay.remove(current);
         return Optional.of(current);
       }
     }

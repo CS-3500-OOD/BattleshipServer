@@ -159,4 +159,9 @@ public class ProxyPlayer implements Player {
             return List.of(new Ship(new Coord(-1, -1), -1, Dir.HORIZONTAL));
         }
     }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }
