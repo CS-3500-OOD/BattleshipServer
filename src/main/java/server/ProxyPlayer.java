@@ -28,7 +28,7 @@ import java.util.Optional;
  */
 public class ProxyPlayer implements Player {
 
-    private static final int RESPONSE_TIMEOUT_SECS = 2;
+    private static final int RESPONSE_TIMEOUT_SECS = 5;
     private final JsonSocketCommunication communication;
 
     private final String name;
