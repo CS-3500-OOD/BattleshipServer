@@ -61,7 +61,7 @@ public class ProxyPlayer implements Player {
         MessageJSON messageJson = new MessageJSON("take-turn", messageArgs);
         this.communication.sendJson(messageJson);
 
-        Optional<MessageJSON> response = this.communication.receiveJson();
+        Optional<MessageJSON> response = this.getResponse();
 
         if(response.isPresent() && "take-turn".equals(response.get().messageName())) {
             return this.parseVolleyResponse(response.get().arguments());

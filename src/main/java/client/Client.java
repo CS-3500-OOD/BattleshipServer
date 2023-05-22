@@ -1,7 +1,6 @@
 package client;
 
 import game.Player;
-import game.PlayerImp;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
@@ -22,7 +21,7 @@ public class Client {
 
   public static void main(String[] args) {
     Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
-    logger.info("Client start");
+    System.out.println("Client start");
     if(args.length >= 2) {
 
       String host = args[0];
@@ -35,31 +34,37 @@ public class Client {
         spawnClients(host, port, 1);
       }
     }
-    logger.info("Client end");
+    System.out.println("Client end");
   }
 
   private static void spawnClients(String host, int port, int numClients) {
-    logger.info("Connecting " + numClients + " clients to " + host + ":" + port);
+    System.out.println("Connecting " + numClients + " clients to " + host + ":" + port);
+
     ExecutorService service = Executors.newFixedThreadPool(numClients);
     List<Future<Boolean>> clients = new ArrayList<>();
+
+
     for(int i = 0; i < numClients; i++) {
       try {
-        logger.info("connecting... (" + i + ")");
+        System.out.println("connecting... (" + i + ")");
         Socket server = new Socket(host, port);
         Player player = new NamedPlayer("Player_" + i);
         GameType type = GameType.MULTI;
-        Future<Boolean> future = service.submit(() -> {new ProxyReferee(server, player, type); return true;});
-        logger.info("Spawned player " + player);
+        Future<Boolean> future = service.submit(() -> {new ProxyReferee(server, player, type).run(); return true;});
+        clients.add(future);
+        System.out.println("Spawned player " + player);
       }
       catch (IOException e) {
-        logger.error("IO Exception: " + e);
+        System.err.println("IO Exception: " + e);
       }
     }
+
+
     for(Future<Boolean> client : clients) {
       try {
         client.get();
       } catch (InterruptedException | ExecutionException e) {
-        logger.error("Client thread error: " + e);
+        System.err.println("Client thread error: " + e);
       }
     }
   }
