@@ -33,7 +33,7 @@ public interface Player {
      */
     void hits(List<Coord> shots);
 
-
+    //TODO: Change to GameState Enum to Allow a TIE
     void endGame(boolean win);
 
 
