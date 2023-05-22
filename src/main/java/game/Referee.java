@@ -37,13 +37,13 @@ public class Referee implements IReferee{
      * Execute Game Of BattleShip.
      */
     @Override
-    public void run() {
+    public boolean run() {
         logger.info(this.gameUniqueMarker, "Starting game...");
 
-        //pick random height and width between 20 and 50, and add to game info
+        //pick random height and width between 10 and 20, and add to game info
         Random r = new Random();
-        int height = r.nextInt(40) + 10;
-        int width = r.nextInt(40) + 10;
+        int height = r.nextInt(11) + 10;
+        int width = r.nextInt(11) + 10;
         Map<ShipType, Integer> gameInfo = new HashMap<>();
 
         // 50x50 == 20 ships
@@ -52,8 +52,8 @@ public class Referee implements IReferee{
         // ship bounds [5, 20]
         // output = output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start)
 
-        int area = width * height;
-        int numAdditionalShips = Math.round((15f / 2400f) * (area - 100f));
+//        int area = width * height;
+//        int numAdditionalShips = Math.round((15f / 2400f) * (area - 100f));
 
         //Create Random Bounded Ship assignments
         List<ShipType> types = new ArrayList<>(
@@ -62,10 +62,10 @@ public class Referee implements IReferee{
         for (ShipType s : types) {
             gameInfo.put(s, 1);
         }
-        for (int i = 0; i < numAdditionalShips; i++) {
-            ShipType type = types.get(r.nextInt(types.size()));
-            gameInfo.put(type, gameInfo.get(type) + 1);
-        }
+//        for (int i = 0; i < numAdditionalShips; i++) {
+//            ShipType type = types.get(r.nextInt(types.size()));
+//            gameInfo.put(type, gameInfo.get(type) + 1);
+//        }
 
         logger.info(this.gameUniqueMarker,
             "Board [" + width + "x" + height + "] - " + Arrays.toString(
@@ -94,7 +94,7 @@ public class Referee implements IReferee{
 
             client1.endGame(c1Valid);
             client2.endGame(c2Valid);
-            return;
+            return false;
         }
         // Place Boats on tracking boards
         p1Board.mirrorClientPlacement(c1Ships);
@@ -129,7 +129,7 @@ public class Referee implements IReferee{
                 logger.info(this.gameUniqueMarker, "Game Over! " + winner);
                 client1.endGame(p1Won);
                 client2.endGame(p2Won);
-                return;
+                return true;
             } else {
 
                 boolean p1InvalidVolley =
@@ -152,7 +152,7 @@ public class Referee implements IReferee{
                     } else {
                         logger.info(this.gameUniqueMarker, client1.name() + " won!");
                     }
-                    return;
+                    return false;
                 }
             }
 

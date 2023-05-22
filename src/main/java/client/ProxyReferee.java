@@ -48,6 +48,9 @@ public class ProxyReferee implements Runnable{
       if(receivedJson.isPresent()) {
 
         MessageJSON message = receivedJson.get();
+
+        System.out.println(this.player.name() + " received: " + message);
+
         delegateMessage(message);
 
       }
@@ -55,6 +58,7 @@ public class ProxyReferee implements Runnable{
         this.isGameOver = true; // no message, give up and leave
       }
     }
+    this.communication.endCommunication();
   }
 
 
@@ -86,6 +90,7 @@ public class ProxyReferee implements Runnable{
     PlayerJSON playerJSON = new PlayerJSON(this.player.name(), this.type);
     JsonNode arguments = JsonUtils.serializeRecordToJson(playerJSON);
     MessageJSON response = new MessageJSON("join", arguments);
+    System.out.println(this.player.name() + " sent: " + response);
     this.communication.sendJson(response);
   }
 
@@ -96,6 +101,7 @@ public class ProxyReferee implements Runnable{
 
     JsonNode node = serializeFleet(ships);
     MessageJSON response = new MessageJSON("setup", node);
+    System.out.println(this.player.name() + " sent: " + response);
     this.communication.sendJson(response);
   }
 
@@ -107,6 +113,7 @@ public class ProxyReferee implements Runnable{
     VolleyJSON volleyJSONResponse = new VolleyJSON(shots);
     JsonNode node = JsonUtils.serializeRecordToJson(volleyJSONResponse);
     MessageJSON response = new MessageJSON("take-turn", node);
+    System.out.println(this.player.name() + " sent: " + response);
     this.communication.sendJson(response);
   }
 
@@ -114,8 +121,9 @@ public class ProxyReferee implements Runnable{
     VolleyJSON vollyHit = JsonUtils.convertNodeToRecord(arguments, VolleyJSON.class);
 
     this.player.hits(vollyHit.coordinates());
-
-    this.communication.sendJson(new MessageJSON("hit", VOID_JSON));
+    MessageJSON response = new MessageJSON("hit", VOID_JSON);
+    System.out.println(this.player.name() + " sent: " + response);
+    this.communication.sendJson(response);
   }
 
   private void win(JsonNode arguments) {
@@ -124,8 +132,9 @@ public class ProxyReferee implements Runnable{
 
     this.player.endGame(winJSON.won());
     this.isGameOver = true;
-
-    this.communication.sendJson(new MessageJSON("win", VOID_JSON));
+    MessageJSON response = new MessageJSON("win", VOID_JSON);
+    System.out.println(this.player.name() + " sent: " + response);
+    this.communication.sendJson(response);
   }
 
   private static JsonNode serializeFleet(List<Ship> ships) {

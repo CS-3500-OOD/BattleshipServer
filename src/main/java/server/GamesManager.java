@@ -7,14 +7,21 @@ import game.PlayerImp;
 import game.Referee;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * This class connects clients to opponents and manages all active games.
@@ -34,6 +41,8 @@ public class GamesManager {
 
   private final List<ProxyPlayer> clientsWaitingToPlay;
 
+  private Map<String, Future<Boolean>> activegames;
+
   private boolean stopServerFlag;
 
   public GamesManager(int port) {
@@ -45,6 +54,8 @@ public class GamesManager {
     // add two for the server.ClientsAcceptor and server.InputListener
     int numThreadsInPool = MAX_GAMES_RUNNING_AT_A_TIME + 2;
     this.executorService = Executors.newFixedThreadPool(numThreadsInPool);
+
+    this.activegames = new HashMap<>();
   }
 
   /**
@@ -75,6 +86,8 @@ public class GamesManager {
     }
 
     Server.logger.info("Shutting down server...");
+    this.stopAllGames();
+    this.clientsAcceptor.stopAcceptingClients();
     this.executorService.shutdown();
     this.executorService.shutdownNow();
   }
@@ -121,10 +134,7 @@ public class GamesManager {
    */
   private boolean attemptSpawnMultiPlayerGame(Player player1) {
     Optional<ProxyPlayer> player2 = getNextMultiPlayer();
-    if(player2.isPresent()) {
-      return attemptSpawnGame(player1, player2.get());
-    }
-    return false;
+    return player2.filter(player -> attemptSpawnGame(player1, player)).isPresent();
   }
 
   private Optional<ProxyPlayer> getNextMultiPlayer() {
@@ -160,22 +170,52 @@ public class GamesManager {
     try {
       String gameId = UUID.randomUUID().toString();
       Referee referee = new Referee(player1, player2);
+
       Callable<Boolean> game = () -> {
-        try {
-          referee.run();
-        }
-        catch (Exception e) {
-          System.out.println("XXXXXXXX ISSUE " + e);
-          return false;
-        }
+        referee.run();
+        this.activegames.remove(gameId);
+        Server.logger.info("Game " + gameId + " finished.");
+        Server.logger.info("Current Active Games: (" + this.activegames.size() + ") " + Arrays.toString(this.activegames.keySet().toArray()));
         return true;
       };
-      this.executorService.submit(game);
+
+      Future<Boolean> gameFuture = this.executorService.submit(game);
+      this.activegames.put(gameId, gameFuture);
+
       Server.logger.info("Successfully spawned new game [" + gameId + "] (" + player1.name() + ", " + player2.name() + ")");
       return true;
     }
     catch(RejectedExecutionException e) {
+      Server.logger.info("Unable to spawn game with players: " + player1.name() + ", " + player2.name() + ". Adding players back to queue.");
+      this.attemptAddPlayerBackToQueueIfIsProxy(player1);
+      this.attemptAddPlayerBackToQueueIfIsProxy(player2);
       return false; // unable to start game, queue is full...
+    }
+  }
+
+  /**
+   * Attempts to add the given player to the queue if they are a ProxyPlayer.
+   *
+   * @param player the player to add
+   */
+  private void attemptAddPlayerBackToQueueIfIsProxy(Player player) {
+    if(player instanceof ProxyPlayer) {
+      this.addPlayerToQueue((ProxyPlayer) player);
+    }
+  }
+
+  /**
+   * Times out all active games to gracefully shut down the server.
+   */
+  private void stopAllGames() {
+    Server.logger.info("Shutting down all active games: (" + this.activegames.size() + ") " + Arrays.toString(this.activegames.keySet().toArray()));
+    for(Future<Boolean> game : this.activegames.values()) {
+      try {
+        game.get(1, TimeUnit.SECONDS);
+      }
+      catch (ExecutionException | InterruptedException | TimeoutException ignored) {
+
+      }
     }
   }
 }

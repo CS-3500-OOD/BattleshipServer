@@ -78,6 +78,11 @@ public class ClientsAcceptor {
       future.get(MAX_SIGNUP_TIME_SECS, TimeUnit.SECONDS);
     }
     catch (RejectedExecutionException | ExecutionException | InterruptedException | TimeoutException ignored) {
+//      Server.logger.info("Connection not accepted. " + e);
     }
+  }
+
+  public void stopAcceptingClients() {
+    this.stopAcceptingClients = true;
   }
 }

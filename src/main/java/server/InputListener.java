@@ -11,10 +11,8 @@ public class InputListener {
 
   private static final String QUIT = "quit";
   private final GamesManager manager;
-  private boolean takeInput;
   public InputListener(GamesManager manager) {
     this.manager = manager;
-    this.takeInput = true;
   }
 
   /**
@@ -22,18 +20,18 @@ public class InputListener {
    */
   public void acceptInput() {
     Scanner scanner = new Scanner(System.in);
-    while (this.takeInput && scanner.hasNext()) {
+    while (scanner.hasNext()) {
       String line = scanner.next();
 
       if(QUIT.equalsIgnoreCase(line)) {
-      //  this.manager.stopServer();
-        this.takeInput = false;
+        Server.logger.info("[INPUT] Quit received, requesting server graceful shutdown...");
+        this.manager.stopServer();
+        return;
       }
       else {
-        System.out.println("To stop the server, type 'quit'");
+        System.out.println("[INPUT] To stop the server, type 'quit'");
       }
     }
-   // this.manager.stopServer();
   }
 
 }
