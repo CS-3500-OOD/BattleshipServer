@@ -35,6 +35,7 @@ public class Client {
         spawnClients(host, port, 1);
       }
     }
+
     logger.info("Client end");
   }
 
