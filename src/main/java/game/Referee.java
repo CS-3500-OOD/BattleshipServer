@@ -60,7 +60,7 @@ public class Referee implements IReferee{
             Arrays.asList(ShipType.CARRIER, ShipType.BATTLESHIP, ShipType.DESTROYER,
                 ShipType.SUBMARINE));
         for (ShipType s : types) {
-            gameInfo.put(s, 1);
+            gameInfo.put(s, 1);//TODO: Random Ship Selection
         }
 //        for (int i = 0; i < numAdditionalShips; i++) {
 //            ShipType type = types.get(r.nextInt(types.size()));
