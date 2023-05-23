@@ -33,9 +33,13 @@ public interface Player {
      */
     void hits(List<Coord> shots);
 
-    //TODO: Change to GameState Enum to Allow a TIE
-    void endGame(boolean win);
-
+    /**
+     * Notifies the player that the game is over.
+     *
+     * @param result if the player has won, lost, or forced a draw
+     * @param reason the reason for the game ending
+     */
+    void endGame(GameResult result, String reason);
 
 
 }

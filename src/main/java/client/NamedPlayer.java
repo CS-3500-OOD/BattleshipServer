@@ -1,5 +1,6 @@
 package client;
 
+import game.GameResult;
 import game.PlayerImp;
 
 public class NamedPlayer extends PlayerImp {
@@ -17,8 +18,8 @@ public class NamedPlayer extends PlayerImp {
   }
 
   @Override
-  public void endGame(boolean won) {
-    System.out.println(name + (won ? " won!" : " lost!"));
+  public void endGame(GameResult result, String reason) {
+    System.out.println(name + " " + result + " Reason: " + reason);
   }
 
 }

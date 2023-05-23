@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import game.Coord;
 import game.Dir;
+import game.GameResult;
 import game.Player;
 import game.Ship;
 import game.ShipType;
@@ -96,8 +97,8 @@ public class ProxyPlayer implements Player {
     }
 
     @Override
-    public void endGame(boolean win) {
-        WinJSON winJSON = new WinJSON(win);
+    public void endGame(GameResult result, String reason) {
+        WinJSON winJSON = new WinJSON(result, reason);
         JsonNode messageArgs = JsonUtils.serializeRecordToJson(winJSON);
         MessageJSON messageJSON = new MessageJSON("win", messageArgs);
         this.communication.sendJson(messageJSON);

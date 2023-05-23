@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.List;
 import java.util.Optional;
-import json.FleetJSON;
 import json.JsonSocketCommunication;
 import json.JsonUtils;
 import json.MessageJSON;
@@ -130,7 +129,7 @@ public class ProxyReferee implements Runnable{
 
     WinJSON winJSON = JsonUtils.convertNodeToRecord(arguments, WinJSON.class);
 
-    this.player.endGame(winJSON.won());
+    this.player.endGame(winJSON.result(), winJSON.reason());
     this.isGameOver = true;
     MessageJSON response = new MessageJSON("win", VOID_JSON);
     System.out.println(this.player.name() + " sent: " + response);

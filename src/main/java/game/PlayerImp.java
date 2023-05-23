@@ -14,7 +14,7 @@ public class PlayerImp implements Player {
 
     private static final String CPU_NAME = "SERVER_CPU";
 
-    private List<Coord> possibleShots;
+    protected List<Coord> possibleShots;
 
     @Override
     public String name() {
@@ -44,16 +44,16 @@ public class PlayerImp implements Player {
     }
 
 
-    private List<Coord> generateShots(int number){
+    public List<Coord> generateShots(int number) {
         List<Coord> retList = new ArrayList<>();
         Random r = new Random();
         for (int i = 0; i < number; i++){
             Coord currentCoord;
-            do {
-                currentCoord = this.possibleShots.remove(r.nextInt(this.possibleShots.size()));
-            } while(retList.contains(currentCoord) && ! this.validShot(currentCoord));
+            if(this.possibleShots.isEmpty()) {
+                return new ArrayList<>();
+            }
+            currentCoord = this.possibleShots.remove(r.nextInt(this.possibleShots.size()));
             retList.add(currentCoord);
-
         }
         for (Coord shot : retList){
             OpponentBoard[shot.y()][shot.x()] = CellStatus.SPLASH;
@@ -97,8 +97,8 @@ public class PlayerImp implements Player {
         List<Ship> temp = new ArrayList<>();
 
         //Create initial set of Ship objects
-        for (ShipType s : boats.keySet()){
-            for (int i = 0; i < boats.getOrDefault(s, 0); i ++){
+        for (ShipType s : boats.keySet()) {
+            for (int i = 0; i < boats.getOrDefault(s, 0); i++) {
                 temp.add(new Ship(reference.get(s)));
             }
         }
@@ -106,23 +106,35 @@ public class PlayerImp implements Player {
         List<Dir> allDirs = new ArrayList<>(Arrays.asList(Dir.VERTICAL, Dir.HORIZONTAL));
 
         //Repeatedly place ships at random valid locations until all ships are placed.
-         for (Ship s : temp){
-            boolean NicksFlag = true;
-            do {
+        //WORKING STUB VERSION
+//        for (int i = 0; i < temp.size(); i++) {
+//            Ship s = temp.get(i);
+//            s.place(new Coord(0, i), Dir.HORIZONTAL);
+//            fleet.add(s);
+//        }
+        // END WORKING STUB VERSION
+        for (Ship s : temp) {
+            boolean validPlacement = false;
+            while (!validPlacement) {
+                System.out.println(this.name() + " looking for ships");
                 int x = r.nextInt(this.OpponentBoard[0].length);
                 int y = r.nextInt(this.OpponentBoard.length);
                 Dir dir = allDirs.get(r.nextInt(2));
                 s.place(new Coord(x, y), dir);
                 if (this.validCoords(s)) {
+                    boolean flag = true;
                     for (Ship s2 : this.fleet) {
                         if (s.isColliding(s2)) {
-                            NicksFlag = false;
-                       }
-                   }
-               }
-
-            } while(!NicksFlag);
-            fleet.add(s);
+                            flag = false;
+                            break;
+                        }
+                    }
+                    if (flag) {
+                        validPlacement = true;
+                        fleet.add(s);
+                    }
+                }
+            }
         }
     }
 
@@ -144,7 +156,7 @@ public class PlayerImp implements Player {
     }
 
     @Override
-    public void endGame(boolean win) {
-        System.out.print("I won");
+    public void endGame(GameResult result, String reason) {
+        System.out.println(result + ": " + reason);
     }
 }

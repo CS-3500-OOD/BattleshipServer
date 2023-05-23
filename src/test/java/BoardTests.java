@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BoardTests {
     Ship s1;
@@ -26,33 +27,25 @@ public class BoardTests {
     }
 
 
+
     @Test
     public void testSetup(){
+        Player p = new PlayerImp();
+        Map<ShipType, Integer> sampleSet = new HashMap<>();
+        sampleSet.put(ShipType.BATTLESHIP, 2);
+        sampleSet.put(ShipType.CARRIER, 2);
+        sampleSet.put(ShipType.DESTROYER, 2);
+        sampleSet.put(ShipType.SUBMARINE, 2);
+        List<Ship> setuped = p.setup(10,10, sampleSet);
+        for (Ship s: setuped) {
+            Coord start = s.getStartPoint();
+            Coord end = s.getEndpoint();
+            assertTrue(start.x() >= 0);
+            assertTrue(start.y() >= 0);
+            assertTrue(end.x() <= 10);
+            assertTrue(end.y() <= 10);
+        }
     }
-
-    /**
-    @Test
-    public void testSalvo(){
-        //Initialize Board Object
-        Board b1 = new BoardImpl();
-        //Create Specs List
-        Map<String, Integer> specs = new HashMap<>();
-        //Initialize h/w
-        specs.put("height", 40);
-        specs.put("width", 40);
-        b1.setup(specs);
-        //Set fleet to s list
-        b1.mirrorClientPlacement(new ArrayList<>(Arrays.asList(s3, s4, s5, s6)));
-        List<Coord> volley = b1.salvo(new ArrayList<>());
-        assertEquals(volley.size(), 4);
-        List<Coord> volley2 = b1.salvo(new ArrayList<>(Arrays.asList(new Coord(13, 16))));
-        assertEquals(4, volley2.size());
-        volley2 = b1.salvo(Arrays.asList(new Coord(14, 16)));
-        assertEquals(volley2.size(), 4);
-        volley2 = b1.salvo(Arrays.asList(new Coord(15, 16)));
-        assertEquals(volley2.size(), 3);
-    }
-    */
 
 
 }

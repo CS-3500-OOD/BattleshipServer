@@ -1,8 +1,10 @@
 package game;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class BoardImpl extends PlayerImp implements Board {
@@ -12,6 +14,20 @@ public class BoardImpl extends PlayerImp implements Board {
     @Override
     public void mirrorClientPlacement(List<Ship> playerShips) {
         super.fleet = playerShips;
+    }
+
+    @Override
+    public List<Ship> setup(int height, int width, Map<ShipType, Integer> spec) {
+        this.OpponentBoard = new CellStatus[width][height];
+        this.possibleShots = new ArrayList<>();
+        for(int row = 0; row < OpponentBoard.length; row ++) {
+            for (int col = 0; col < OpponentBoard[0].length; col++) {
+                OpponentBoard[row][col] = CellStatus.EMPTY;
+                this.possibleShots.add(new Coord(col, row));
+            }
+        }
+        this.fleet = new ArrayList<>();
+        return this.fleet; //Format Ship list into format expected by server
     }
 
     @Override

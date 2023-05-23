@@ -92,8 +92,13 @@ public class Referee implements IReferee{
             logger.info(this.gameUniqueMarker, c1Valid ? (this.client1.name() + " won")
                 : (c2Valid ? (this.client2.name() + " won") : "Both players lost"));
 
-            client1.endGame(c1Valid);
-            client2.endGame(c2Valid);
+            String reasonFailed = "Your player did not provide a valid setup configuration";
+            String reasonStopped = "The opponent did not provide a valid setup configuration";
+            boolean draw = (!c1Valid && !c2Valid);
+            GameResult result1 = draw ? GameResult.DRAW : (c1Valid ? GameResult.WIN : GameResult.LOSE);
+            GameResult result2 = draw ? GameResult.DRAW : (c2Valid ? GameResult.WIN : GameResult.LOSE);
+            client1.endGame(result1, c1Valid ? reasonStopped : reasonFailed);
+            client2.endGame(result2, c2Valid ? reasonStopped : reasonFailed);
             return false;
         }
         // Place Boats on tracking boards
@@ -127,8 +132,15 @@ public class Referee implements IReferee{
                 String winner = p2Won ? (p1Won ? "Draw!" : client2.name() + " won!")
                     : (client1.name() + " won!");
                 logger.info(this.gameUniqueMarker, "Game Over! " + winner);
-                client1.endGame(p1Won);
-                client2.endGame(p2Won);
+
+                boolean draw = p1Won && p2Won;
+                GameResult result1 = draw ? GameResult.DRAW : (p1Won ? GameResult.WIN : GameResult.LOSE);
+                GameResult result2 = draw ? GameResult.DRAW : (p2Won ? GameResult.WIN : GameResult.LOSE);
+
+                String winReason = "You won!";
+                String loseReason = "You lost!";
+                client1.endGame(result1, p1Won ? winReason : loseReason);
+                client2.endGame(result2, p2Won ? winReason : loseReason);
                 return true;
             } else {
 
@@ -140,8 +152,16 @@ public class Referee implements IReferee{
                         p2Board);
 
                 if (p1InvalidVolley || p2InvalidVolley) {
-                    client1.endGame(!p1InvalidVolley);
-                    client2.endGame(!p2InvalidVolley);
+
+                    String badVolleyReason = "Your player did not return a valid volley";
+                    String normalReason = "The opponent did not return a valid volley";
+
+                    boolean draw = p1InvalidVolley && p2InvalidVolley;
+                    GameResult result1 = draw ? GameResult.DRAW : (p1InvalidVolley ? GameResult.LOSE : GameResult.WIN);
+                    GameResult result2 = draw ? GameResult.DRAW : (p2InvalidVolley ? GameResult.LOSE : GameResult.WIN);
+
+                    client1.endGame(result1, p1InvalidVolley ? badVolleyReason : normalReason);
+                    client2.endGame(result2, p2InvalidVolley ? badVolleyReason : normalReason);
 
                     logger.info(this.gameUniqueMarker,
                         "A player did not return a valid volley");
