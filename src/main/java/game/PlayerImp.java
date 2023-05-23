@@ -138,8 +138,10 @@ public class PlayerImp implements Player {
 
 
     private boolean validCoords(Ship s) {
-        return s.getStartPoint().x() >= 0 && s.getEndpoint().y() >= 0 && s.getStartPoint().y() < OpponentBoard.length
-                && s.getEndpoint().x() < OpponentBoard[0].length;
+        return (s.getStartPoint().x() >= 0 && s.getStartPoint().y() >= 0 && s.getStartPoint().y() < OpponentBoard.length
+                && s.getStartPoint().x() < OpponentBoard[0].length) &&
+                (s.getEndpoint().x() >= 0 && s.getEndpoint().y() >= 0 && s.getEndpoint().y() < OpponentBoard.length
+                        && s.getEndpoint().x() < OpponentBoard[0].length);
     }
 
     /**
