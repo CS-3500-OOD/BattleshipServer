@@ -135,4 +135,23 @@ public class Ship {
     public String toString() {
         return "<Ship: " + this.startPoint + " " + this.length + " " + this.orientation + " " + this.hits + ">";
     }
+
+
+    @Override
+    public boolean equals(Object o){
+        if ( !(o instanceof Ship)){
+            return false;
+        }
+        else {
+            return this.status == ((Ship) o).status &&
+                    this.startPoint.equals(((Ship) o).getStartPoint()) &&
+                    this.getEndpoint().equals(((Ship) o).getEndpoint()) &&
+                    this.orientation == ((Ship) o).getDir();
+        }
+    }
+
+    @Override
+    public int hashCode(){
+        return this.orientation.hashCode() + Integer.hashCode(this.length) + this.startPoint.hashCode();
+    }
 }
