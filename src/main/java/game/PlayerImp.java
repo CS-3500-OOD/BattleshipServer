@@ -12,13 +12,13 @@ public class PlayerImp implements Player {
      */
     protected CellStatus[][] OpponentBoard;
 
-    private static final String CPU_NAME = "SERVER_CPU";
+    private static final String SERVER_NAME = "SERVER_AGENT";
 
     protected List<Coord> possibleShots;
 
     @Override
     public String name() {
-        return CPU_NAME;
+        return SERVER_NAME;
     }
 
     /**

@@ -2,7 +2,6 @@ package server;
 
 import game.Player;
 
-import game.Player;
 import game.PlayerImp;
 import game.Referee;
 
@@ -122,7 +121,7 @@ public class GamesManager {
       return this.attemptSpawnMultiPlayerGame(player);
     }
     else {
-      return this.attemptSpawnCPUPlayerGame(player);
+      return this.attemptSpawnSingleRemotePlayerGame(player);
     }
   }
 
@@ -154,9 +153,9 @@ public class GamesManager {
    * @param player1 Player 1
    * @return true if spawning the game was successful, false if not
    */
-  private boolean attemptSpawnCPUPlayerGame(Player player1) {
-    Player cpu = new PlayerImp();
-    return attemptSpawnGame(player1, cpu);
+  private boolean attemptSpawnSingleRemotePlayerGame(Player player1) {
+    Player serverAgent = new PlayerImp();
+    return attemptSpawnGame(player1, serverAgent);
   }
 
   /**
