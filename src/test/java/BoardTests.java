@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BoardTests {
@@ -40,10 +39,10 @@ public class BoardTests {
         for (Ship s: setuped) {
             Coord start = s.getStartPoint();
             Coord end = s.getEndpoint();
-            assertTrue(start.x() >= 0);
-            assertTrue(start.y() >= 0);
-            assertTrue(end.x() <= 10);
-            assertTrue(end.y() <= 10);
+            assertTrue(start.x() >= 0,  start.x() + " >= 0");
+            assertTrue(start.y() >= 0, start.y() + " >= 0");
+            assertTrue(end.x() <= 9, end.x() + " <= 9");
+            assertTrue(end.y() <= 9, end.y() + " <= 9");
         }
     }
 

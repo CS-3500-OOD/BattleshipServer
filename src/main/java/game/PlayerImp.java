@@ -114,32 +114,31 @@ public class PlayerImp implements Player {
 //        }
         // END WORKING STUB VERSION
         for (Ship s : temp) {
-            boolean validPlacement = false;
-            while (!validPlacement) {
+            boolean flag = false;
+            while (!flag) {
                 System.out.println(this.name() + " looking for ships");
                 int x = r.nextInt(this.OpponentBoard[0].length);
                 int y = r.nextInt(this.OpponentBoard.length);
                 Dir dir = allDirs.get(r.nextInt(2));
                 s.place(new Coord(x, y), dir);
                 if (this.validCoords(s)) {
-                    boolean flag = true;
+                    flag = true;
                     for (Ship s2 : this.fleet) {
                         if (s.isColliding(s2)) {
                             flag = false;
                             break;
                         }
                     }
-                    if (flag) {
-                        validPlacement = true;
+                    if (flag)
                         fleet.add(s);
                     }
                 }
             }
         }
-    }
+
 
     private boolean validCoords(Ship s) {
-        return s.getStartPoint().x() >= 0 && s.getEndpoint().x() >= 0 && s.getStartPoint().y() < OpponentBoard.length
+        return s.getStartPoint().x() >= 0 && s.getEndpoint().y() >= 0 && s.getStartPoint().y() < OpponentBoard.length
                 && s.getEndpoint().x() < OpponentBoard[0].length;
     }
 
