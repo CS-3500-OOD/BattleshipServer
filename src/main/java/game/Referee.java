@@ -40,32 +40,23 @@ public class Referee implements IReferee{
     public boolean run() {
         if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Starting game...");
 
-        //pick random height and width between 10 and 20, and add to game info
+        //pick random height and width between 6 and 15, and add to game info
         Random r = new Random();
-        int height = r.nextInt(11) + 10;
-        int width = r.nextInt(11) + 10;
+        int height = r.nextInt(10) + 6;
+        int width = r.nextInt(10) + 6;
         Map<ShipType, Integer> gameInfo = new HashMap<>();
 
-        // 50x50 == 20 ships
-        // 10x10 == 5 ships
-        // area bounds [100, 2500]
-        // ship bounds [5, 20]
-        // output = output_start + ((output_end - output_start) / (input_end - input_start)) * (input - input_start)
-
-//        int area = width * height;
-//        int numAdditionalShips = Math.round((15f / 2400f) * (area - 100f));
+        int numberShips = r.nextInt(6, Math.min(width, height));
 
         //Create Random Bounded Ship assignments
         List<ShipType> types = new ArrayList<>(
             Arrays.asList(ShipType.CARRIER, ShipType.BATTLESHIP, ShipType.DESTROYER,
                 ShipType.SUBMARINE));
-        for (ShipType s : types) {
-            gameInfo.put(s, 1);//TODO: Random Ship Selection
+
+        for(int i = 0; i < numberShips; i++) {
+            ShipType ship = types.get(r.nextInt(types.size()));
+            gameInfo.put(ship, gameInfo.getOrDefault(ship, 0) + 1);
         }
-//        for (int i = 0; i < numAdditionalShips; i++) {
-//            ShipType type = types.get(r.nextInt(types.size()));
-//            gameInfo.put(type, gameInfo.get(type) + 1);
-//        }
 
         if(Server.DEBUG) logger.info(this.gameUniqueMarker,
             "Board [" + width + "x" + height + "] - " + Arrays.toString(
@@ -104,6 +95,7 @@ public class Referee implements IReferee{
         // Place Boats on tracking boards
         p1Board.mirrorClientPlacement(c1Ships);
         p2Board.mirrorClientPlacement(c2Ships);
+
 
         //Send first empty Salvo to players
         //INBOUND C2 = shots coming FROM c1 TOWARDS c2
