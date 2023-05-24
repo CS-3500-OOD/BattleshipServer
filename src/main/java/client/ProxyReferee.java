@@ -24,7 +24,6 @@ import server.GameType;
 
 public class ProxyReferee implements Runnable{
 
-  private static final TextNode VOID_JSON = JsonNodeFactory.instance.textNode("void");
   private static final boolean DEBUG = false;
 
   private final JsonSocketCommunication communication;
@@ -73,11 +72,14 @@ public class ProxyReferee implements Runnable{
     else if("setup".equals(name)) {
       setup(arguments);
     }
-    else if("take-turn".equals(name)) {
-      takeTurn(arguments);
+    else if("take-shots".equals(name)) {
+      takeShots();
     }
-    else if("hit".equals(name)) {
-      hit(arguments);
+    else if("report-damage".equals(name)) {
+      reportDamage(arguments);
+    }
+    else if("successful-hits".equals(name)) {
+      successfulHits(arguments);
     }
     else if("win".equals(name)) {
       win(arguments);
@@ -86,6 +88,7 @@ public class ProxyReferee implements Runnable{
       throw new IllegalArgumentException("Unknown request: " + name + " " + arguments.asText());
     }
   }
+
 
   private void join() {
     PlayerJSON playerJSON = new PlayerJSON(this.player.name(), this.type);
@@ -108,24 +111,37 @@ public class ProxyReferee implements Runnable{
     this.communication.sendJson(response);
   }
 
-  private void takeTurn(JsonNode arguments) {
-    VolleyJSON volleyJSON = JsonUtils.convertNodeToRecord(arguments, VolleyJSON.class);
-
-    List<Coord> shots = this.player.salvo(volleyJSON.coordinates());
+  private void takeShots() {
+    List<Coord> shots = this.player.takeShots();
 
     VolleyJSON volleyJSONResponse = new VolleyJSON(shots);
     JsonNode node = JsonUtils.serializeRecordToJson(volleyJSONResponse);
-    MessageJSON response = new MessageJSON("take-turn", node);
+    MessageJSON response = new MessageJSON("take-shots", node);
 
     if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
     this.communication.sendJson(response);
   }
 
-  private void hit(JsonNode arguments) {
+  private void reportDamage(JsonNode arguments) {
+    VolleyJSON volleyJSON = JsonUtils.convertNodeToRecord(arguments, VolleyJSON.class);
+
+    List<Coord> shots = this.player.reportDamage(volleyJSON.coordinates());
+
+    VolleyJSON volleyJSONResponse = new VolleyJSON(shots);
+    JsonNode node = JsonUtils.serializeRecordToJson(volleyJSONResponse);
+    MessageJSON response = new MessageJSON("report-damage", node);
+
+    if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
+    this.communication.sendJson(response);
+  }
+
+  private void successfulHits(JsonNode arguments) {
     VolleyJSON vollyHit = JsonUtils.convertNodeToRecord(arguments, VolleyJSON.class);
 
-    this.player.hits(vollyHit.coordinates());
-    MessageJSON response = new MessageJSON("hit", VOID_JSON);
+    this.player.successfulHits(vollyHit.coordinates());
+
+    JsonNode node = JsonNodeFactory.instance.objectNode();
+    MessageJSON response = new MessageJSON("successful-hits", node);
 
     if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
     this.communication.sendJson(response);
@@ -137,11 +153,15 @@ public class ProxyReferee implements Runnable{
 
     this.player.endGame(winJSON.result(), winJSON.reason());
     this.isGameOver = true;
-    MessageJSON response = new MessageJSON("win", VOID_JSON);
+
+    JsonNode node = JsonNodeFactory.instance.objectNode();
+    MessageJSON response = new MessageJSON("win", node);
 
     if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
     this.communication.sendJson(response);
   }
+
+
 
   private static JsonNode serializeFleet(List<Ship> ships) {
     JsonNodeFactory factory = JsonNodeFactory.instance;

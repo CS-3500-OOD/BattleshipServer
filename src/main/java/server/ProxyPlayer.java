@@ -2,6 +2,7 @@ package server;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import game.Coord;
 import game.Dir;
 import game.GameResult;
@@ -55,20 +56,6 @@ public class ProxyPlayer implements Player {
         return this.name;
     }
 
-    @Override
-    public List<Coord> salvo(List<Coord> shots) {
-        VolleyJSON volley = new VolleyJSON(shots);
-        JsonNode messageArgs = JsonUtils.serializeRecordToJson(volley);
-        MessageJSON messageJson = new MessageJSON("take-turn", messageArgs);
-        this.communication.sendJson(messageJson);
-
-        Optional<MessageJSON> response = this.getResponse();
-
-        if(response.isPresent() && "take-turn".equals(response.get().messageName())) {
-            return this.parseVolleyResponse(response.get().arguments());
-        }
-        return List.of(new Coord(-1, -1));
-    }
 
     @Override
     public List<Ship> setup(int height, int width, Map<ShipType, Integer> specifications) {
@@ -87,8 +74,37 @@ public class ProxyPlayer implements Player {
     }
 
     @Override
-    public void hits(List<Coord> shots) {
-        VolleyJSON volley = new VolleyJSON(shots);
+    public List<Coord> takeShots() {
+        JsonNode node = JsonNodeFactory.instance.objectNode();
+        MessageJSON messageJson = new MessageJSON("take-shots", node);
+        this.communication.sendJson(messageJson);
+
+        Optional<MessageJSON> response = this.getResponse();
+
+        if(response.isPresent() && "take-shots".equals(response.get().messageName())) {
+            return this.parseVolleyResponse(response.get().arguments());
+        }
+        return List.of(new Coord(-1, -1));
+    }
+
+    @Override
+    public List<Coord> reportDamage(List<Coord> opponentShotsOnBoard) {
+        VolleyJSON volley = new VolleyJSON(opponentShotsOnBoard);
+        JsonNode messageArgs = JsonUtils.serializeRecordToJson(volley);
+        MessageJSON messageJson = new MessageJSON("report-damage", messageArgs);
+        this.communication.sendJson(messageJson);
+
+        Optional<MessageJSON> response = this.getResponse();
+
+        if(response.isPresent() && "report-damage".equals(response.get().messageName())) {
+            return this.parseVolleyResponse(response.get().arguments());
+        }
+        return List.of(new Coord(-1, -1));
+    }
+
+    @Override
+    public void successfulHits(List<Coord> shotsThatHitOpponentShips) {
+        VolleyJSON volley = new VolleyJSON(shotsThatHitOpponentShips);
         JsonNode messageArgs = JsonUtils.serializeRecordToJson(volley);
         MessageJSON messageJson = new MessageJSON("hit", messageArgs);
         this.communication.sendJson(messageJson);
@@ -124,8 +140,6 @@ public class ProxyPlayer implements Player {
             return Optional.empty();
         }
     }
-
-
 
     /**
      * Parses a JsonNode as a Volley and returns the list of Coords in that volley.

@@ -70,11 +70,13 @@ public class Ship {
      *
      * @return  true if hit, and false if not a NEW hit.
      */
-    public void receiveShot(Coord c){
+    public boolean receiveShot(Coord c){
         if (this.isHit(c) && !hits.contains(c)){
             hits.add(c);
+            status =  hits.size() >= length;
+            return true;
         }
-        status =  hits.size() >= length;
+        return false;
     }
 
     /**

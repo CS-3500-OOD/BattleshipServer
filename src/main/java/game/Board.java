@@ -16,15 +16,7 @@ public interface Board extends Player {
      * Place ships based on player placement
      * @param playerShips
      */
-    public void mirrorClientPlacement(List<Ship> playerShips);
-
-
-    /**
-     * Return List of coords that hit ships placed on board
-     * @param shots
-     * @return
-     */
-    List<Coord> reportDamage(List<Coord> shots);
+    void mirrorClientPlacement(List<Ship> playerShips);
 
 
     boolean shotIsValid(Coord c);
