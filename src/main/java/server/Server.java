@@ -20,6 +20,8 @@ public class Server {
   private static final int DEFAULT_PORT = 35001;
   static final Logger logger = LogManager.getLogger(Server.class);
 
+  public static final boolean DEBUG = false;
+
   /**
    * Runs the server on the given port until the server is shutdown.
    * @param port the port to host the server on

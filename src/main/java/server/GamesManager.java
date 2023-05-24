@@ -89,6 +89,14 @@ public class GamesManager {
     this.clientsAcceptor.stopAcceptingClients();
     this.executorService.shutdown();
     this.executorService.shutdownNow();
+
+    Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
+    Server.logger.info("Shutdown. " + map.size() + " threads found");
+    for(Thread key : map.keySet()) {
+      StackTraceElement[] stacktrace = map.get(key);
+      Server.logger.info(key.getName() + " - alive: " + key.isAlive() + " trace: \n\t" + Arrays.toString(stacktrace) + "\n");
+    }
+    System.exit(0);
   }
 
 

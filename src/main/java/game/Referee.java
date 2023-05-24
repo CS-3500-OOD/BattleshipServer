@@ -4,8 +4,8 @@ import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.MarkerManager.Log4jMarker;
+import server.Server;
 
 public class Referee implements IReferee{
     private final Board p1Board;
@@ -38,7 +38,7 @@ public class Referee implements IReferee{
      */
     @Override
     public boolean run() {
-        logger.info(this.gameUniqueMarker, "Starting game...");
+        if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Starting game...");
 
         //pick random height and width between 10 and 20, and add to game info
         Random r = new Random();
@@ -67,7 +67,7 @@ public class Referee implements IReferee{
 //            gameInfo.put(type, gameInfo.get(type) + 1);
 //        }
 
-        logger.info(this.gameUniqueMarker,
+        if(Server.DEBUG) logger.info(this.gameUniqueMarker,
             "Board [" + width + "x" + height + "] - " + Arrays.toString(
                 gameInfo.entrySet().toArray()));
 
@@ -77,19 +77,19 @@ public class Referee implements IReferee{
         List<Ship> c2Ships = client2.setup(height, width, gameInfo);
         p1Board.setup(height, width, gameInfo);
         p2Board.setup(height, width, gameInfo);
-        logger.info(this.gameUniqueMarker, "Setup Stage:");
-        logger.info(this.gameUniqueMarker,
+        if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Setup Stage:");
+        if(Server.DEBUG) logger.info(this.gameUniqueMarker,
             this.client1.name() + " - " + Arrays.toString(c1Ships.toArray()));
-        logger.info(this.gameUniqueMarker,
+        if(Server.DEBUG) logger.info(this.gameUniqueMarker,
             this.client2.name() + " - " + Arrays.toString(c2Ships.toArray()));
 
         //check fleets for validity
         boolean c1Valid = this.isValidFleet(c1Ships, gameInfo);
         boolean c2Valid = this.isValidFleet(c2Ships, gameInfo);
         if (!c1Valid || !c2Valid) {
-            logger.info(this.gameUniqueMarker,
+            if(Server.DEBUG) logger.info(this.gameUniqueMarker,
                 "A player did not provide a valid setup configuration.");
-            logger.info(this.gameUniqueMarker, c1Valid ? (this.client1.name() + " won")
+            if(Server.DEBUG) logger.info(this.gameUniqueMarker, c1Valid ? (this.client1.name() + " won")
                 : (c2Valid ? (this.client2.name() + " won") : "Both players lost"));
 
             String reasonFailed = "Your player did not provide a valid setup configuration";
@@ -110,7 +110,7 @@ public class Referee implements IReferee{
         List<Coord> inboundc2 = new ArrayList<>();
         List<Coord> inboundc1 = new ArrayList<>();
 
-        logger.info(this.gameUniqueMarker, "Starting game loop.");
+        if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Starting game loop.");
         //TODO: Extract to Helper
         while (true) {
             //Send old salvos, retrieve new ones, and retrieve ref versions
@@ -120,10 +120,10 @@ public class Referee implements IReferee{
             List<Coord> c2Return = client2.salvo(inboundc2);
             List<Coord> ref2Return = p2Board.salvo(inboundc2);
 
-            logger.info(this.gameUniqueMarker, "Volley sent:");
-            logger.info(this.gameUniqueMarker,
+            if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Volley sent:");
+            if(Server.DEBUG) logger.info(this.gameUniqueMarker,
                 client1.name() + " " + Arrays.toString(c1Return.toArray()));
-            logger.info(this.gameUniqueMarker,
+            if(Server.DEBUG) logger.info(this.gameUniqueMarker,
                 client2.name() + " " + Arrays.toString(c2Return.toArray()));
 
             boolean p2Won = ref1Return.size() == 0;
@@ -131,7 +131,7 @@ public class Referee implements IReferee{
             if (p1Won || p2Won) {
                 String winner = p2Won ? (p1Won ? "Draw!" : client2.name() + " won!")
                     : (client1.name() + " won!");
-                logger.info(this.gameUniqueMarker, "Game Over! " + winner);
+                if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Game Over! " + winner);
 
                 boolean draw = p1Won && p2Won;
                 GameResult result1 = draw ? GameResult.DRAW : (p1Won ? GameResult.WIN : GameResult.LOSE);
@@ -163,14 +163,14 @@ public class Referee implements IReferee{
                     client1.endGame(result1, p1InvalidVolley ? badVolleyReason : normalReason);
                     client2.endGame(result2, p2InvalidVolley ? badVolleyReason : normalReason);
 
-                    logger.info(this.gameUniqueMarker,
+                    if(Server.DEBUG) logger.info(this.gameUniqueMarker,
                         "A player did not return a valid volley");
                     if (p1InvalidVolley && p2InvalidVolley) {
-                        logger.info(this.gameUniqueMarker, "Both players lost");
+                        if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Both players lost");
                     } else if (p1InvalidVolley) {
-                        logger.info(this.gameUniqueMarker, client2.name() + " won!");
+                        if(Server.DEBUG) logger.info(this.gameUniqueMarker, client2.name() + " won!");
                     } else {
-                        logger.info(this.gameUniqueMarker, client1.name() + " won!");
+                        if(Server.DEBUG) logger.info(this.gameUniqueMarker, client1.name() + " won!");
                     }
                     return false;
                 }
@@ -184,11 +184,11 @@ public class Referee implements IReferee{
             inboundc1 = c2Return;
             inboundc2 = c1Return;
 
-            logger.info(this.gameUniqueMarker, "Reporting successful hits:");
-            logger.info(this.gameUniqueMarker,
+            if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Reporting successful hits:");
+            if(Server.DEBUG) logger.info(this.gameUniqueMarker,
                 client1.name() + " succeeded in hitting - " + Arrays.toString(
                     p1Hits.toArray()));
-            logger.info(this.gameUniqueMarker,
+            if(Server.DEBUG) logger.info(this.gameUniqueMarker,
                 client2.name() + " succeeded in hitting - " + Arrays.toString(
                     p2Hits.toArray()));
         }

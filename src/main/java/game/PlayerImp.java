@@ -116,7 +116,7 @@ public class PlayerImp implements Player {
         for (Ship s : temp) {
             boolean flag = false;
             while (!flag) {
-                System.out.println(this.name() + " looking for ships");
+//                System.out.println(this.name() + " looking for ships");
                 int x = r.nextInt(this.OpponentBoard[0].length);
                 int y = r.nextInt(this.OpponentBoard.length);
                 Dir dir = allDirs.get(r.nextInt(2));
@@ -158,6 +158,6 @@ public class PlayerImp implements Player {
 
     @Override
     public void endGame(GameResult result, String reason) {
-        System.out.println(result + ": " + reason);
+//        System.out.println(result + ": " + reason);
     }
 }
