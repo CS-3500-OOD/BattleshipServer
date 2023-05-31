@@ -21,6 +21,8 @@ public interface Board extends Player {
 
     boolean shotIsValid(Coord c);
 
+    int numShotsAvailable();
+
 
 
 }

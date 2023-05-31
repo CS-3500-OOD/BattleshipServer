@@ -21,6 +21,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 /**
  * This class connects clients to opponents and manages all active games.
@@ -91,11 +92,11 @@ public class GamesManager {
     this.executorService.shutdownNow();
 
     Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
-    Server.logger.info("Shutdown. " + map.size() + " threads found");
-    for(Thread key : map.keySet()) {
-      StackTraceElement[] stacktrace = map.get(key);
-      Server.logger.info(key.getName() + " - alive: " + key.isAlive() + " trace: \n\t" + Arrays.toString(stacktrace) + "\n");
-    }
+    Server.logger.info("Shutdown. " + map.keySet().stream().filter(Thread::isAlive).toList().size() + " alive threads found");
+//    for(Thread key : map.keySet()) {
+//      StackTraceElement[] stacktrace = map.get(key);
+//      Server.logger.info(key.getName() + " - alive: " + key.isAlive() + " trace: \n\t" + Arrays.toString(stacktrace) + "\n");
+//    }
     System.exit(0);
   }
 
@@ -163,7 +164,7 @@ public class GamesManager {
    */
   private boolean attemptSpawnSingleRemotePlayerGame(Player player1) {
     Player serverAgent = new PlayerImp();
-    return attemptSpawnGame(player1, serverAgent);
+    return attemptSpawnGame(serverAgent, player1);
   }
 
   /**

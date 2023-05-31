@@ -1,6 +1,7 @@
 package game;
 
 import java.util.*;
+import java.util.function.Predicate;
 
 public class PlayerImp implements Player {
     /**
@@ -35,7 +36,6 @@ public class PlayerImp implements Player {
         this.fleet = new ArrayList<>();
         this.placeBoats(specifications);
         return this.fleet; //Format Ship list into format expected by server
-
     }
 
     @Override
@@ -79,49 +79,51 @@ public class PlayerImp implements Player {
     //Given a fleet from the server, place boats
     private void placeBoats(Map<ShipType, Integer> boats) {
 
+        List<Coord> possiblePlacements = new ArrayList<>(this.possibleShots);
+        Collections.shuffle(possiblePlacements);
+
         //Initialize a hashmap of ship types paired to lengths
-        Map<ShipType, Integer> reference = new HashMap<>();
-        reference.put(ShipType.CARRIER, 6);
-        reference.put(ShipType.BATTLESHIP, 5);
-        reference.put(ShipType.DESTROYER, 4);
-        reference.put(ShipType.SUBMARINE, 3);
+        Map<ShipType, Integer> reference = Map.of(
+            ShipType.CARRIER, 6,
+            ShipType.BATTLESHIP, 5,
+            ShipType.DESTROYER, 4,
+            ShipType.SUBMARINE, 3
+        );
+
         List<Ship> temp = new ArrayList<>();
 
         //Create initial set of Ship objects
         for (ShipType s : boats.keySet()) {
-            for (int i = 0; i < boats.getOrDefault(s, 0); i++) {
+            int numShips = boats.get(s);
+            for (int i = 0; i < numShips; i++) {
                 temp.add(new Ship(reference.get(s)));
             }
         }
+
         Random r = new Random();
         List<Dir> allDirs = new ArrayList<>(Arrays.asList(Dir.VERTICAL, Dir.HORIZONTAL));
 
-        //Repeatedly place ships at random valid locations until all ships are placed.
-        //WORKING STUB VERSION
-//        for (int i = 0; i < temp.size(); i++) {
-//            Ship s = temp.get(i);
-//            s.place(new Coord(0, i), Dir.HORIZONTAL);
-//            fleet.add(s);
-//        }
-        // END WORKING STUB VERSION
         for (Ship s : temp) {
             boolean flag = false;
             while (!flag) {
-//                System.out.println(this.name() + " looking for ships");
-                int x = r.nextInt(this.OpponentBoard[0].length);
-                int y = r.nextInt(this.OpponentBoard.length);
-                Dir dir = allDirs.get(r.nextInt(2));
-                s.place(new Coord(x, y), dir);
-                if (this.validCoords(s)) {
-                    flag = true;
-                    for (Ship s2 : this.fleet) {
-                        if (s.isColliding(s2)) {
-                            flag = false;
-                            break;
+                Coord place = possiblePlacements.remove(0);
+                Collections.shuffle(allDirs);
+
+                boolean placed = false;
+                for(int i = 0; i < allDirs.size() && !placed && !flag; i++) {
+                    s.place(place, allDirs.get(i));
+
+                    if (this.validCoords(s)) {
+                        flag = true;
+                        for (Ship s2 : this.fleet) {
+                            if (s.isColliding(s2)) {
+                                flag = false;
+                                break;
+                            }
                         }
+                        if (flag)
+                            fleet.add(s);
                     }
-                    if (flag)
-                        fleet.add(s);
                 }
             }
         }
@@ -146,9 +148,12 @@ public class PlayerImp implements Player {
 
 
     private boolean validCoords(Ship s) {
-        return (s.getStartPoint().x() >= 0 && s.getStartPoint().y() >= 0 && s.getStartPoint().y() < OpponentBoard.length
-                && s.getStartPoint().x() < OpponentBoard[0].length) &&
-                (s.getEndpoint().x() >= 0 && s.getEndpoint().y() >= 0 && s.getEndpoint().y() < OpponentBoard.length
-                        && s.getEndpoint().x() < OpponentBoard[0].length);
+
+        Coord start = s.getStartPoint();
+        Coord end = s.getEndpoint();
+
+        Predicate<Coord> inBounds = (a) -> a.x() >= 0 && a.y() >= 0 && a.y() < OpponentBoard.length && a.x() < OpponentBoard[0].length;
+
+        return inBounds.test(start) && inBounds.test(end);
     }
 }

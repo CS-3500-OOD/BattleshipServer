@@ -106,7 +106,7 @@ public class ProxyPlayer implements Player {
     public void successfulHits(List<Coord> shotsThatHitOpponentShips) {
         VolleyJSON volley = new VolleyJSON(shotsThatHitOpponentShips);
         JsonNode messageArgs = JsonUtils.serializeRecordToJson(volley);
-        MessageJSON messageJson = new MessageJSON("hit", messageArgs);
+        MessageJSON messageJson = new MessageJSON("successful-hits", messageArgs);
         this.communication.sendJson(messageJson);
 
         Optional<MessageJSON> response = this.getResponse();
@@ -116,7 +116,7 @@ public class ProxyPlayer implements Player {
     public void endGame(GameResult result, String reason) {
         WinJSON winJSON = new WinJSON(result, reason);
         JsonNode messageArgs = JsonUtils.serializeRecordToJson(winJSON);
-        MessageJSON messageJSON = new MessageJSON("win", messageArgs);
+        MessageJSON messageJSON = new MessageJSON("end-game", messageArgs);
         this.communication.sendJson(messageJSON);
 
         Optional<MessageJSON> response = this.getResponse();

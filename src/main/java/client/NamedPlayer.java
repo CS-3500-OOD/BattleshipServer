@@ -19,7 +19,7 @@ public class NamedPlayer extends PlayerImp {
 
   @Override
   public void endGame(GameResult result, String reason) {
-    System.out.println(name + " " + result + " Reason: " + reason);
+    System.out.println("\n" + name + " [" + result + "] - " + reason + "\n");
   }
 
 }

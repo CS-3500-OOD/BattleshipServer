@@ -113,9 +113,9 @@ public class Ship {
     public Coord getEndpoint(){
         Coord temp;
         if (this.orientation == Dir.VERTICAL){
-            return new Coord(this.startPoint.x(), this.startPoint.y() + length);
+            return new Coord(this.startPoint.x(), this.startPoint.y() + length - 1);
         }
-        else {return new Coord(this.startPoint.x() + length, this.startPoint.y());}
+        else {return new Coord(this.startPoint.x() + length - 1, this.startPoint.y());}
     }
 
     public boolean isHit(Coord c){

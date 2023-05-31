@@ -24,7 +24,7 @@ import server.GameType;
 
 public class ProxyReferee implements Runnable{
 
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
 
   private final JsonSocketCommunication communication;
   private final Player player;
@@ -81,7 +81,7 @@ public class ProxyReferee implements Runnable{
     else if("successful-hits".equals(name)) {
       successfulHits(arguments);
     }
-    else if("win".equals(name)) {
+    else if("end-game".equals(name)) {
       win(arguments);
     }
     else {

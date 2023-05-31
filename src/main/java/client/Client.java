@@ -35,6 +35,7 @@ public class Client {
       }
     }
     System.out.println("Client end");
+    System.exit(0);
   }
 
   private static void spawnClients(String host, int port, int numClients) {

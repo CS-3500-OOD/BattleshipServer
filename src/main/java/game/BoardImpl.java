@@ -52,5 +52,16 @@ public class BoardImpl extends PlayerImp implements Board {
         return flag;
     }
 
+    @Override
+    public int numShotsAvailable() {
+        int acc = 0;
+        for (Ship s: this.fleet){
+            if (!s.isSunk()){
+                acc ++;
+            }
+        }
+        return acc;
+    }
+
 
 }
