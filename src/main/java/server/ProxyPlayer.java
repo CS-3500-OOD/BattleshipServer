@@ -35,10 +35,12 @@ public class ProxyPlayer implements Player {
 
     private final String name;
     private final GameType type;
+    private final ExecutorService executorService;
 
 
     public ProxyPlayer(Socket client, String name, GameType type) throws IOException {
         this.communication = new JsonSocketCommunication(client);
+        this.executorService = Executors.newSingleThreadExecutor();
         this.name = name;
         this.type = type;
     }
@@ -130,9 +132,8 @@ public class ProxyPlayer implements Player {
      * @return an optional message JSON representation
      */
     private Optional<MessageJSON> getResponse() {
-        ExecutorService service = Executors.newSingleThreadExecutor();
         Callable<Optional<MessageJSON>> callable = this.communication::receiveJson;
-        Future<Optional<MessageJSON>> future = service.submit(callable);
+        Future<Optional<MessageJSON>> future = this.executorService.submit(callable);
         try {
             return future.get(RESPONSE_TIMEOUT_SECS, TimeUnit.SECONDS);
         } catch (CancellationException | InterruptedException | ExecutionException | TimeoutException e) {

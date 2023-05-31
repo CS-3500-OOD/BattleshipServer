@@ -17,6 +17,7 @@ public class Referee implements IReferee{
     private final Marker gameUniqueMarker;
 
     private static final Logger logger = LogManager.getLogger(Referee.class);
+    private static final boolean GAME_DEBUG = false;
 
 
     public Referee(Player p1, Player p2) {
@@ -38,11 +39,11 @@ public class Referee implements IReferee{
      */
     @Override
     public boolean run() {
-        if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Starting game...");
+        if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker, "Starting game...");
 
         SetupJSON setupParameters = createBoardParameters();
 
-        if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Setup Stage:");
+        if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker, "Setup Stage:");
         List<Ship> c1Ships = this.setupPlayer(setupParameters, client1, p1Board);
         List<Ship> c2Ships = this.setupPlayer(setupParameters, client2, p2Board);
         //check fleets for validity
@@ -57,7 +58,7 @@ public class Referee implements IReferee{
         p2Board.mirrorClientPlacement(c2Ships);
 
 
-        if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Starting game loop.");
+        if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker, "Starting game loop.");
 
         return gameLoop();
     }
@@ -74,7 +75,7 @@ public class Referee implements IReferee{
                 return false;
             }
 
-            if(Server.DEBUG) {
+            if(Server.DEBUG && GAME_DEBUG) {
                 logger.info(this.gameUniqueMarker, "Volley sent:");
                 logger.info(this.gameUniqueMarker, client1.name() + " " + Arrays.toString(p1AttackVolley.toArray()));
                 logger.info(this.gameUniqueMarker, client2.name() + " " + Arrays.toString(p2AttackVolley.toArray()));
@@ -95,7 +96,7 @@ public class Referee implements IReferee{
                 return false;
             }
 
-            if(Server.DEBUG) {
+            if(Server.DEBUG && GAME_DEBUG) {
                 logger.info(this.gameUniqueMarker, "Damage Reports:");
                 logger.info(this.gameUniqueMarker, client1.name() + " was hit at " + Arrays.toString(damageDoneToP1.toArray()));
                 logger.info(this.gameUniqueMarker, client2.name() + " was hit at " + Arrays.toString(damageDoneToP2.toArray()));
@@ -121,7 +122,7 @@ public class Referee implements IReferee{
             GameResult p2Result = draw ? GameResult.DRAW : p2Valid ? GameResult.WIN : GameResult.LOSE;
             String reason = "A player did not return the correct damage report";
 
-            if(Server.DEBUG) {
+            if(Server.DEBUG && GAME_DEBUG) {
                 logger.info(this.gameUniqueMarker, reason);
                 logger.info(client1.name() + ": " + p1Result + ", " + client2.name() + ": " + p2Result);
             }
@@ -155,11 +156,11 @@ public class Referee implements IReferee{
             client1.endGame(result1, p1InvalidVolley ? badVolleyReason : normalReason);
             client2.endGame(result2, p2InvalidVolley ? badVolleyReason : normalReason);
 
-            if(Server.DEBUG) logger.info(this.gameUniqueMarker, "A player did not return a valid volley");
+            if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker, "A player did not return a valid volley");
 
             String serverOutcomeLog = (p1InvalidVolley && p2InvalidVolley) ? "Both players lost" : (p1InvalidVolley ? client2.name() + " won!" : client1.name() + " won!");
 
-            if(Server.DEBUG) logger.info(this.gameUniqueMarker, serverOutcomeLog);
+            if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker, serverOutcomeLog);
             return false;
         }
         return true;
@@ -172,7 +173,7 @@ public class Referee implements IReferee{
         if(p1Won || p2Won) {
             String winner = p2Won ? (p1Won ? "Draw!" : client2.name() + " won!")
                 : (client1.name() + " won!");
-            if(Server.DEBUG) logger.info(this.gameUniqueMarker, "Game Over! " + winner);
+            if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker, "Game Over! " + winner);
 
             boolean draw = p1Won && p2Won;
             GameResult result1 = draw ? GameResult.DRAW : (p1Won ? GameResult.WIN : GameResult.LOSE);
@@ -193,9 +194,9 @@ public class Referee implements IReferee{
         boolean c2Valid = this.isValidFleet(c2Ships, setupParameters.boats());
 
         if (!c1Valid || !c2Valid) {
-            if(Server.DEBUG) logger.info(this.gameUniqueMarker,
+            if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker,
                 "A player did not provide a valid setup configuration.");
-            if(Server.DEBUG) logger.info(this.gameUniqueMarker, c1Valid ? (this.client1.name() + " won")
+            if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker, c1Valid ? (this.client1.name() + " won")
                 : (c2Valid ? (this.client2.name() + " won") : "Both players lost"));
 
             String reasonFailed = "Your player did not provide a valid setup configuration";
@@ -220,7 +221,7 @@ public class Referee implements IReferee{
         List<Ship> ships = player.setup(height, width, boats);
         board.setup(height, width, boats);
 
-        if(Server.DEBUG) logger.info(this.gameUniqueMarker,
+        if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker,
             player.name() + " - " + Arrays.toString(ships.toArray()));
 
         return ships;
@@ -249,7 +250,7 @@ public class Referee implements IReferee{
             gameInfo.put(ship, gameInfo.getOrDefault(ship, 0) + 1);
         }
 
-        if(Server.DEBUG) logger.info(this.gameUniqueMarker,
+        if(Server.DEBUG && GAME_DEBUG) logger.info(this.gameUniqueMarker,
             "Board [" + width + "x" + height + "] - " + Arrays.toString(
                 gameInfo.entrySet().toArray()));
 

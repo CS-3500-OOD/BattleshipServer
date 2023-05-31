@@ -47,7 +47,9 @@ public class ClientsAcceptor {
    */
   public void acceptClients() {
 
-    ExecutorService signupExecutorService = Executors.newFixedThreadPool(MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME);
+    ExecutorService signupExecutorService = new BoundedExecutorService(
+        Executors.newFixedThreadPool(MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME),
+        MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME);
 
     try {
       ServerSocket serverSocket = new ServerSocket(this.port);

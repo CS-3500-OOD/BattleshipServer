@@ -25,6 +25,7 @@ public class JsonSocketCommunication {
     private final PrintWriter output;
 
     private static final Logger logger = LogManager.getLogger(JsonSocketCommunication.class);
+    private static final boolean COMM_DEBUG = false;
 
     private final Marker marker;
 
@@ -48,7 +49,7 @@ public class JsonSocketCommunication {
      */
     public void sendJson(MessageJSON messageJson) {
         JsonNode message = JsonUtils.serializeRecordToJson(messageJson);
-        if(Server.DEBUG) logger.info(this.marker, "SENDING: \n" + JsonUtils.prettifyJSON(messageJson) + "\n");
+        if(Server.DEBUG && COMM_DEBUG) logger.info(this.marker, "SENDING: \n" + JsonUtils.prettifyJSON(messageJson) + "\n");
         this.output.println(message);
         this.output.flush();
     }
@@ -64,10 +65,10 @@ public class JsonSocketCommunication {
                 this.input = new ObjectMapper().createParser(connection.getInputStream());
             }
             MessageJSON messageJSON = this.input.readValueAs(MessageJSON.class);
-            if(Server.DEBUG) logger.info(this.marker, "RECEIVED: \n" + JsonUtils.prettifyJSON(messageJSON) + "\n");
+            if(Server.DEBUG && COMM_DEBUG) logger.info(this.marker, "RECEIVED: \n" + JsonUtils.prettifyJSON(messageJSON) + "\n");
             return Optional.of(messageJSON);
         } catch (IllegalArgumentException | IOException e) {
-            if(Server.DEBUG) logger.info(this.marker, "RECEIVED: deserialization issue " + e);
+            if(Server.DEBUG && COMM_DEBUG) logger.info(this.marker, "RECEIVED: deserialization issue " + e);
             return Optional.empty();
         }
     }

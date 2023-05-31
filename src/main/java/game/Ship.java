@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Represents a ship in a game of BattleShip
@@ -20,7 +22,7 @@ public class Ship {
 
     private Dir orientation;
 
-    private List<Coord> hits;
+    private Set<Coord> hits;
 
 
     @JsonCreator
@@ -31,12 +33,12 @@ public class Ship {
         this.startPoint = startPoint;
         this.length = length;
         this.orientation = orientation;
-        this.hits = new ArrayList<>();
+        this.hits = new HashSet<>();
     }
 
     public Ship(int length){
         this.length = length;
-        this.hits = new ArrayList<>();
+        this.hits = new HashSet<>();
     }
 
     public void place(Coord start, Dir dir){
@@ -71,7 +73,7 @@ public class Ship {
      * @return  true if hit, and false if not a NEW hit.
      */
     public boolean receiveShot(Coord c){
-        if (this.isHit(c) && !hits.contains(c)){
+        if (this.isHit(c)) {
             hits.add(c);
             status =  hits.size() >= length;
             return true;
@@ -127,8 +129,7 @@ public class Ship {
         else {
             return (this.startPoint.x() == c.x() &&
                     this.startPoint.y() <= c.y() &&
-                    this.getEndpoint().y() >= c.y())
-                    && !hits.contains(c);
+                    this.getEndpoint().y() >= c.y());
         }
     }
 

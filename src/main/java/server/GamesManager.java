@@ -21,7 +21,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 /**
  * This class connects clients to opponents and manages all active games.
@@ -41,7 +40,7 @@ public class GamesManager {
 
   private final List<ProxyPlayer> clientsWaitingToPlay;
 
-  private Map<String, Future<Boolean>> activegames;
+  private final Map<String, Future<Boolean>> activeGames;
 
   private boolean stopServerFlag;
 
@@ -53,9 +52,9 @@ public class GamesManager {
 
     // add two for the server.ClientsAcceptor and server.InputListener
     int numThreadsInPool = MAX_GAMES_RUNNING_AT_A_TIME + 2;
-    this.executorService = Executors.newFixedThreadPool(numThreadsInPool);
+    this.executorService = new BoundedExecutorService(Executors.newFixedThreadPool(numThreadsInPool), numThreadsInPool);
 
-    this.activegames = new HashMap<>();
+    this.activeGames = new HashMap<>();
   }
 
   /**
@@ -76,12 +75,7 @@ public class GamesManager {
 
         ProxyPlayer nextPlayer = this.clientsWaitingToPlay.remove(0);
 
-        boolean success = this.attemptDelegateGameCreationForPlayer(nextPlayer);
-
-        //unable to find a game, add the player to the end of the queue
-        if(!success) {
-          this.clientsWaitingToPlay.add(nextPlayer);
-        }
+        this.attemptDelegateGameCreationForPlayer(nextPlayer);
       }
     }
 
@@ -123,14 +117,13 @@ public class GamesManager {
    * Depending on the GameType of the given ProxyPlayer, attempt to spawn a game with that player.
    *
    * @param player the ProxyPlayer
-   * @return if spawning the game was successful
    */
-  private boolean attemptDelegateGameCreationForPlayer(ProxyPlayer player) {
+  private void attemptDelegateGameCreationForPlayer(ProxyPlayer player) {
     if(player.getGameType() == GameType.MULTI) {
-      return this.attemptSpawnMultiPlayerGame(player);
+      this.attemptSpawnMultiPlayerGame(player);
     }
     else {
-      return this.attemptSpawnSingleRemotePlayerGame(player);
+      this.attemptSpawnSingleRemotePlayerGame(player);
     }
   }
 
@@ -138,11 +131,15 @@ public class GamesManager {
    * Attempt to spawn a game with the given player against another player waiting in queue.
    *
    * @param player1 Player 1
-   * @return true if spawning the game was successful, false if not
    */
-  private boolean attemptSpawnMultiPlayerGame(Player player1) {
+  private void attemptSpawnMultiPlayerGame(ProxyPlayer player1) {
     Optional<ProxyPlayer> player2 = getNextMultiPlayer();
-    return player2.filter(player -> attemptSpawnGame(player1, player)).isPresent();
+    if(player2.isPresent()) {
+      attemptSpawnGame(player1, player2.get());
+    }
+    else {
+      addPlayerToQueue(player1);
+    }
   }
 
   private Optional<ProxyPlayer> getNextMultiPlayer() {
@@ -160,11 +157,10 @@ public class GamesManager {
    * Attempt to spawn a game with one player against the Server CPU.
    *
    * @param player1 Player 1
-   * @return true if spawning the game was successful, false if not
    */
-  private boolean attemptSpawnSingleRemotePlayerGame(Player player1) {
+  private void attemptSpawnSingleRemotePlayerGame(Player player1) {
     Player serverAgent = new PlayerImp();
-    return attemptSpawnGame(serverAgent, player1);
+    attemptSpawnGame(serverAgent, player1);
   }
 
   /**
@@ -172,32 +168,29 @@ public class GamesManager {
    *
    * @param player1 Player 1
    * @param player2 Player 2
-   * @return true if spawning the game was successful, false if not
    */
-  private boolean attemptSpawnGame(Player player1, Player player2) {
+  private void attemptSpawnGame(Player player1, Player player2) {
     try {
       String gameId = UUID.randomUUID().toString();
       Referee referee = new Referee(player1, player2);
 
       Callable<Boolean> game = () -> {
         referee.run();
-        this.activegames.remove(gameId);
+        this.activeGames.remove(gameId);
         Server.logger.info("Game " + gameId + " finished.");
-        Server.logger.info("Current Active Games: (" + this.activegames.size() + ") " + Arrays.toString(this.activegames.keySet().toArray()));
+        Server.logger.info("Current Active Games: (" + this.activeGames.size() + ") " + Arrays.toString(this.activeGames.keySet().toArray()));
         return true;
       };
 
       Future<Boolean> gameFuture = this.executorService.submit(game);
-      this.activegames.put(gameId, gameFuture);
+      this.activeGames.put(gameId, gameFuture);
 
       Server.logger.info("Successfully spawned new game [" + gameId + "] (" + player1.name() + ", " + player2.name() + ")");
-      return true;
     }
     catch(RejectedExecutionException e) {
       Server.logger.info("Unable to spawn game with players: " + player1.name() + ", " + player2.name() + ". Adding players back to queue.");
       this.attemptAddPlayerBackToQueueIfIsProxy(player1);
       this.attemptAddPlayerBackToQueueIfIsProxy(player2);
-      return false; // unable to start game, queue is full...
     }
   }
 
@@ -216,8 +209,8 @@ public class GamesManager {
    * Times out all active games to gracefully shut down the server.
    */
   private void stopAllGames() {
-    Server.logger.info("Shutting down all active games: (" + this.activegames.size() + ") " + Arrays.toString(this.activegames.keySet().toArray()));
-    for(Future<Boolean> game : this.activegames.values()) {
+    Server.logger.info("Shutting down all active games: (" + this.activeGames.size() + ") " + Arrays.toString(this.activeGames.keySet().toArray()));
+    for(Future<Boolean> game : this.activeGames.values()) {
       try {
         game.get(1, TimeUnit.SECONDS);
       }
