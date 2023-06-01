@@ -50,7 +50,7 @@ public class Client {
         System.out.println("connecting... (" + i + ")");
         Socket server = new Socket(host, port);
         Player player = new NamedPlayer("Player_" + i);
-        GameType type = GameType.SINGLE;
+        GameType type = GameType.MULTI;
         Future<Boolean> future = service.submit(() -> {new ProxyReferee(server, player, type).run(); return true;});
         clients.add(future);
         System.out.println("Spawned player " + player);
