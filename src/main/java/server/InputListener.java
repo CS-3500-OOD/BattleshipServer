@@ -20,6 +20,8 @@ public class InputListener {
    */
   public void acceptInput() {
     Scanner scanner = new Scanner(System.in);
+    Server.logger.info("[INPUT] To stop the server, type 'quit'");
+
     while (scanner.hasNext()) {
       String line = scanner.next();
 
@@ -29,7 +31,7 @@ public class InputListener {
         return;
       }
       else {
-        System.out.println("[INPUT] To stop the server, type 'quit'");
+        Server.logger.info("[INPUT] To stop the server, type 'quit'");
       }
     }
   }

@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -34,7 +33,7 @@ import java.util.concurrent.TimeoutException;
  */
 public class GamesManager {
 
-  private static final int MAX_GAMES_RUNNING_AT_A_TIME = 10;
+  private static final int MAX_GAMES_RUNNING_AT_A_TIME = Server.PROPERTIES.getInt("max_games_in_parallel", 10);
   private final ExecutorService executorService;
   private final ClientsAcceptor clientsAcceptor;
   private final InputListener inputListener;

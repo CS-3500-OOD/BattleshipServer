@@ -25,7 +25,7 @@ public class JsonSocketCommunication {
     private final PrintWriter output;
 
     private static final Logger logger = LogManager.getLogger(JsonSocketCommunication.class);
-    private static final boolean COMM_DEBUG = false;
+    private static final boolean COMM_DEBUG = Server.PROPERTIES.getBoolean("socket_communication_debug", false);
 
     private final Marker marker;
 

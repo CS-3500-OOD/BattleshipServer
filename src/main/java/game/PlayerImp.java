@@ -2,6 +2,7 @@ package game;
 
 import java.util.*;
 import java.util.function.Predicate;
+import server.Server;
 
 public class PlayerImp implements Player {
     /**
@@ -13,7 +14,7 @@ public class PlayerImp implements Player {
      */
     protected CellStatus[][] OpponentBoard;
 
-    private static final String SERVER_NAME = "SERVER_AGENT";
+    private static final String SERVER_NAME = Server.PROPERTIES.get("server_name", "SERVER_AGENT");
 
     protected List<Coord> possibleShots;
 

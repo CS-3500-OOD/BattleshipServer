@@ -26,7 +26,8 @@ public class BoundedExecutorService extends AbstractExecutorService {
     this.sem = new Semaphore(permits); // fairness irrelevant here
   }
 
-  @Override public void execute(final Runnable runnable) {
+  @Override
+  public void execute(final Runnable runnable) {
     if (!sem.tryAcquire()) {
       throw new RejectedExecutionException("Too many tasks running.");
     }

@@ -20,8 +20,8 @@ import java.util.concurrent.TimeoutException;
  */
 public class ClientsAcceptor {
 
-  private static final int MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME = 4;
-  private static final int MAX_SIGNUP_TIME_SECS = 2;
+  private static final int MAX_CLIENTS_TO_SIGNUP_AT_ONE_TIME = Server.PROPERTIES.getInt("max_player_signup_in_parallel", 4);
+  private static final int MAX_SIGNUP_TIME_SECS = Server.PROPERTIES.getInt("max_signup_response_seconds", 2);
   private final GamesManager manager;
   private final int port;
   private boolean stopAcceptingClients;
@@ -59,7 +59,8 @@ public class ClientsAcceptor {
       }
       serverSocket.close();
     } catch (IOException e) {
-      Server.shutdownServerWithError("Unable to start server.Server on port " + this.port);
+      Server.logger.error("Unable to start server on port " + this.port);
+      this.manager.stopServer();
     }
     finally {
       signupExecutorService.shutdown();

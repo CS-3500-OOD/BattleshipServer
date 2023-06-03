@@ -17,7 +17,7 @@ public class Referee implements IReferee{
     private final Marker gameUniqueMarker;
 
     private static final Logger logger = LogManager.getLogger(Referee.class);
-    private static final boolean GAME_DEBUG = true;
+    private static final boolean GAME_DEBUG = Server.PROPERTIES.getBoolean("game_specific_debug", false);
 
 
     public Referee(Player p1, Player p2) {

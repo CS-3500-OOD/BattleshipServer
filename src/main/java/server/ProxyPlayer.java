@@ -30,7 +30,7 @@ import java.util.Optional;
  */
 public class ProxyPlayer implements Player {
 
-    private static final int RESPONSE_TIMEOUT_SECS = 5;
+    private static final int RESPONSE_TIMEOUT_SECS = Server.PROPERTIES.getInt("client_game_max_response_seconds", 2);
     private final JsonSocketCommunication communication;
 
     private final String name;
