@@ -124,7 +124,7 @@ public class Ship {
         if (this.orientation == Dir.HORIZONTAL) {
             return (this.startPoint.y() == c.y() &&
                     c.x() >= this.startPoint.x() &&
-                    c.x() <= this.startPoint.x() + length);
+                    c.x() <= this.startPoint.x() + length - 1);
         }
         else {
             return (this.startPoint.x() == c.x() &&

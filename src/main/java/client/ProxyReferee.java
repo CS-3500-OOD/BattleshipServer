@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import game.Coord;
 import game.Player;
 import game.Ship;
@@ -24,7 +23,7 @@ import server.GameType;
 
 public class ProxyReferee implements Runnable{
 
-  private static final boolean DEBUG = false;
+  private static final boolean DEBUG = true;
 
   private final JsonSocketCommunication communication;
   private final Player player;
@@ -155,7 +154,7 @@ public class ProxyReferee implements Runnable{
     this.isGameOver = true;
 
     JsonNode node = JsonNodeFactory.instance.objectNode();
-    MessageJSON response = new MessageJSON("win", node);
+    MessageJSON response = new MessageJSON("end-game", node);
 
     if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
     this.communication.sendJson(response);

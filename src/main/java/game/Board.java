@@ -23,6 +23,7 @@ public interface Board extends Player {
 
     int numShotsAvailable();
 
+    void removePossibleShots(List<Coord> shots);
 
 
 }

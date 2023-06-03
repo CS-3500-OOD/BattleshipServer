@@ -36,7 +36,8 @@ public class ShipsTests {
         assertFalse(s3.isHit(new Coord(4, 4)));
         assertFalse(s3.isHit(new Coord(2, 4)));
 
-        assertTrue(s4.isHit(new Coord(13, 9)));
+        assertTrue(s4.isHit(new Coord(12, 9)));
+        assertFalse(s4.isHit(new Coord(13, 9)));
         assertFalse(s4.isHit(new Coord(7, 9)));
         assertFalse(s4.isHit(new Coord(14, 9)));
     }

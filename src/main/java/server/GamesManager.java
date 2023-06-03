@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,7 +55,7 @@ public class GamesManager {
     int numThreadsInPool = MAX_GAMES_RUNNING_AT_A_TIME + 2;
     this.executorService = new BoundedExecutorService(Executors.newFixedThreadPool(numThreadsInPool), numThreadsInPool);
 
-    this.activeGames = new HashMap<>();
+    this.activeGames = new HashMap<>(); //Collections.synchronizedMap(new HashMap<String, Future<Boolean>>());
   }
 
   /**
@@ -87,10 +88,6 @@ public class GamesManager {
 
     Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
     Server.logger.info("Shutdown. " + map.keySet().stream().filter(Thread::isAlive).toList().size() + " alive threads found");
-//    for(Thread key : map.keySet()) {
-//      StackTraceElement[] stacktrace = map.get(key);
-//      Server.logger.info(key.getName() + " - alive: " + key.isAlive() + " trace: \n\t" + Arrays.toString(stacktrace) + "\n");
-//    }
     System.exit(0);
   }
 

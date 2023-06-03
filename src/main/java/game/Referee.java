@@ -17,7 +17,7 @@ public class Referee implements IReferee{
     private final Marker gameUniqueMarker;
 
     private static final Logger logger = LogManager.getLogger(Referee.class);
-    private static final boolean GAME_DEBUG = false;
+    private static final boolean GAME_DEBUG = true;
 
 
     public Referee(Player p1, Player p2) {
@@ -74,6 +74,9 @@ public class Referee implements IReferee{
             if(!validVolleys) {
                 return false;
             }
+
+            p1Board.removePossibleShots(p1AttackVolley);
+            p2Board.removePossibleShots(p2AttackVolley);
 
             if(Server.DEBUG && GAME_DEBUG) {
                 logger.info(this.gameUniqueMarker, "Volley sent:");
@@ -143,6 +146,8 @@ public class Referee implements IReferee{
             || this.invalidSalvo(p1AttackVolley, p1Board);
         boolean p2InvalidVolley = p2AttackVolley.size() != numShotsExpectedFromP2
             || this.invalidSalvo(p2AttackVolley, p2Board);
+
+
 
         if (p1InvalidVolley || p2InvalidVolley) {
 
@@ -230,22 +235,24 @@ public class Referee implements IReferee{
     private SetupJSON createBoardParameters() {
         //pick random height and width between 6 and 15, and add to game info
         Random r = new Random();
-//        int height = r.nextInt(10) + 6;
-//        int width = r.nextInt(10) + 6;
-        Map<ShipType, Integer> gameInfo = new HashMap<>();
-//
-//        int numberShips = r.nextInt(6, Math.min(width, height));
+        int height = r.nextInt(10) + 6;
+        int width = r.nextInt(10) + 6;
 
-        int width = 6;
-        int height = 6;
-        int numberShips = 1;
+        Map<ShipType, Integer> gameInfo = new HashMap<>(Map.of(
+            ShipType.CARRIER, 1,
+            ShipType.BATTLESHIP, 1,
+            ShipType.DESTROYER, 1,
+            ShipType.SUBMARINE, 1
+        ));
+
+        int numberAdditionalShips = r.nextInt(0, Math.min(width, height) - 4);
 
         //Create Random Bounded Ship assignments
         List<ShipType> types = new ArrayList<>(
             Arrays.asList(ShipType.CARRIER, ShipType.BATTLESHIP, ShipType.DESTROYER,
                 ShipType.SUBMARINE));
 
-        for(int i = 0; i < numberShips; i++) {
+        for(int i = 0; i < numberAdditionalShips; i++) {
             ShipType ship = types.get(r.nextInt(types.size()));
             gameInfo.put(ship, gameInfo.getOrDefault(ship, 0) + 1);
         }

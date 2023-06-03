@@ -47,6 +47,13 @@ public class BoardImpl extends PlayerImp implements Board {
                 acc ++;
             }
         }
-        return acc;
+        return Math.min(acc, this.possibleShots.size()); // NOTE: IF THERE ARE NO SHOTS LEFT, they can only take that many.
+    }
+
+    @Override
+    public void removePossibleShots(List<Coord> shots) {
+        for(Coord shot : shots) {
+            this.possibleShots.remove(shot);
+        }
     }
 }

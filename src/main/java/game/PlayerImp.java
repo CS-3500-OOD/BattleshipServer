@@ -46,7 +46,7 @@ public class PlayerImp implements Player {
                 acc ++;
             }
         }
-        return this.generateShots(acc);
+        return this.generateShots(Math.min(acc, this.possibleShots.size()));
     }
 
     @Override
@@ -130,16 +130,19 @@ public class PlayerImp implements Player {
     }
 
     private List<Coord> generateShots(int number) {
+
+        if(this.possibleShots.isEmpty()) {
+            return new ArrayList<>();
+        }
+
         List<Coord> retList = new ArrayList<>();
-        Random r = new Random();
+        Random random = new Random();
+
         for (int i = 0; i < number; i++){
-            Coord currentCoord;
-            if(this.possibleShots.isEmpty()) {
-                return new ArrayList<>();
-            }
-            currentCoord = this.possibleShots.remove(r.nextInt(this.possibleShots.size()));
+            Coord currentCoord = this.possibleShots.remove(random.nextInt(this.possibleShots.size()));
             retList.add(currentCoord);
         }
+
         for (Coord shot : retList){
             OpponentBoard[shot.y()][shot.x()] = CellStatus.SPLASH;
         }
