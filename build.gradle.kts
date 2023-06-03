@@ -32,8 +32,8 @@ tasks.test {
 }
 
 application {
-    mainClass.set("client.Client")
-//    mainClass.set("server.Server")
+//    mainClass.set("client.Client")
+    mainClass.set("server.Server")
 }
 
 tasks {

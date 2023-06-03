@@ -12,6 +12,11 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
+import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
+import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
+import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
+import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 /**
  * This is the entrypoint for the server.Server. Running this file will start the server on the given port
@@ -22,7 +27,8 @@ public class Server {
   static final Logger logger = LogManager.getLogger(Server.class);
 
   static {
-    Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
+    System.setProperty("log4j.configurationFile", "resources/log4j2.xml");
+//    Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
   }
   public static final Preferences PROPERTIES = ServerProperties.getPreferences();
   public static final boolean DEBUG = PROPERTIES.getBoolean("server_debug", true);
@@ -69,7 +75,6 @@ public class Server {
   private static void handleMiscOptions(CommandLine commandLine) {
     if(commandLine.hasOption('r')) {
       ServerProperties.setDefaults(PROPERTIES);
-      ServerProperties.printPreferences(PROPERTIES);
     }
     else {
       if(commandLine.hasOption('p')) {
