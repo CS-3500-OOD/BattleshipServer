@@ -9,6 +9,11 @@ import game.GameResult;
 import game.Player;
 import game.Ship;
 import game.ShipType;
+import java.io.IOException;
+import java.net.Socket;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
@@ -17,13 +22,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import json.*;
-
-import java.io.IOException;
-import java.net.Socket;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import json.FleetJSON;
+import json.JsonSocketCommunication;
+import json.JsonUtils;
+import json.MessageJSON;
+import json.SetupJSON;
+import json.VolleyJSON;
+import json.WinJSON;
 
 /**
  * Class used to facilitate socket communication with a client using the JSON communication design.

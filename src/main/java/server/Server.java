@@ -2,21 +2,13 @@ package server;
 
 import java.util.prefs.Preferences;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.core.config.builder.api.AppenderComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilder;
-import org.apache.logging.log4j.core.config.builder.api.ConfigurationBuilderFactory;
-import org.apache.logging.log4j.core.config.builder.api.RootLoggerComponentBuilder;
-import org.apache.logging.log4j.core.config.builder.impl.BuiltConfiguration;
 
 /**
  * This is the entrypoint for the server.Server. Running this file will start the server on the given port
@@ -113,9 +105,7 @@ public class Server {
           PROPERTIES.putBoolean("server_debug", server);
           PROPERTIES.putBoolean("game_specific_debug", game);
           PROPERTIES.putBoolean("socket_communication_debug", socket);
-
         }
-
       }
 
       ServerProperties.syncPreferences(PROPERTIES);

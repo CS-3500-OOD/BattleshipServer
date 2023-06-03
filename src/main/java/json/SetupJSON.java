@@ -2,7 +2,6 @@ package json;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import game.ShipType;
-
 import java.util.Map;
 
 public record SetupJSON(@JsonProperty("height") int height,

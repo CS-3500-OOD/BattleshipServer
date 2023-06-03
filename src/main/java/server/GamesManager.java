@@ -1,10 +1,8 @@
 package server;
 
 import game.Player;
-
 import game.PlayerImp;
 import game.Referee;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
