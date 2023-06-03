@@ -2,5 +2,5 @@ package game;
 
 public interface IReferee {
 
-    public boolean run();
+  boolean run();
 }

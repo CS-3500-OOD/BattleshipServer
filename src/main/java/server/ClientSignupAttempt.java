@@ -31,16 +31,15 @@ public class ClientSignupAttempt implements Runnable {
       communication.sendJson(new MessageJSON("join", JsonNodeFactory.instance.objectNode()));
       Optional<MessageJSON> messageJSON = communication.receiveJson();
 
-      if(messageJSON.isPresent() && "join".equals(messageJSON.get().messageName())) {
-        PlayerJSON playerJSON = new ObjectMapper().convertValue(messageJSON.get().arguments(), PlayerJSON.class);
+      if (messageJSON.isPresent() && "join".equals(messageJSON.get().messageName())) {
+        PlayerJSON playerJSON = new ObjectMapper().convertValue(messageJSON.get().arguments(),
+            PlayerJSON.class);
         ProxyPlayer player = new ProxyPlayer(client, playerJSON.name(), playerJSON.gameType());
         manager.addPlayerToQueue(player);
-      }
-      else {
+      } else {
         client.close();
       }
-    }
-    catch (IOException e) {
+    } catch (IOException e) {
       // client connection interrupted or client sent bad input
       // TODO: separate catching network issue versus parsing issues
       Server.logger.error("Issue establishing connection: " + e);

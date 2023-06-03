@@ -9,7 +9,7 @@ public class ServerProperties {
   public static Preferences getPreferences() {
     Preferences preferences = Preferences.userRoot().node(ServerProperties.class.getName());
 
-    if(!preferencesLoaded(preferences)) {
+    if (!preferencesLoaded(preferences)) {
       Server.logger.error("Server preferences not found, loading default settings.");
       setDefaults(preferences);
     }
@@ -20,7 +20,7 @@ public class ServerProperties {
 
   private static boolean preferencesLoaded(Preferences preferences) {
     try {
-      if(preferences.keys().length > 0) {
+      if (preferences.keys().length > 0) {
         return true;
       }
     } catch (BackingStoreException ignored) {
@@ -57,8 +57,7 @@ public class ServerProperties {
   public static void syncPreferences(Preferences preferences) {
     try {
       preferences.sync();
-    }
-    catch (BackingStoreException ignored) {
+    } catch (BackingStoreException ignored) {
 
     }
   }

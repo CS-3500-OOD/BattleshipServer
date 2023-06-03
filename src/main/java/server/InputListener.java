@@ -11,12 +11,14 @@ public class InputListener {
 
   private static final String QUIT = "quit";
   private final GamesManager manager;
+
   public InputListener(GamesManager manager) {
     this.manager = manager;
   }
 
   /**
-   * Accepts input until the keyword 'quit' is given. Then notifies the server.GamesManager to stop the server.
+   * Accepts input until the keyword 'quit' is given. Then notifies the server.GamesManager to stop
+   * the server.
    */
   public void acceptInput() {
     Scanner scanner = new Scanner(System.in);
@@ -25,12 +27,11 @@ public class InputListener {
     while (scanner.hasNext()) {
       String line = scanner.next();
 
-      if(QUIT.equalsIgnoreCase(line)) {
+      if (QUIT.equalsIgnoreCase(line)) {
         Server.logger.info("[INPUT] Quit received, requesting server graceful shutdown...");
         this.manager.stopServer();
         return;
-      }
-      else {
+      } else {
         Server.logger.info("[INPUT] To stop the server, type 'quit'");
       }
     }

@@ -6,12 +6,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 /**
  * Jackson JSON record to serialize/deserialize Messages to/from the client.
  * <p>
- * The expected JSON given is:
- * {"method-name": String, "arguments": {} }
+ * The expected JSON given is: {"method-name": String, "arguments": {} }
  */
 public record MessageJSON(
-        @JsonProperty("method-name") String messageName,
-        @JsonProperty("arguments") JsonNode arguments) {
+    @JsonProperty("method-name") String messageName,
+    @JsonProperty("arguments") JsonNode arguments) {
 
 
   @Override

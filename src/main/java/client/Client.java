@@ -22,15 +22,14 @@ public class Client {
   public static void main(String[] args) {
     Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
     System.out.println("Client start");
-    if(args.length >= 2) {
+    if (args.length >= 2) {
 
       String host = args[0];
       int port = Integer.parseInt(args[1]);
 
-      if(args.length == 3) {
+      if (args.length == 3) {
         spawnClients(host, port, Integer.parseInt(args[2]));
-      }
-      else {
+      } else {
         spawnClients(host, port, 1);
       }
     }
@@ -44,24 +43,24 @@ public class Client {
     ExecutorService service = Executors.newFixedThreadPool(numClients);
     List<Future<Boolean>> clients = new ArrayList<>();
 
-
-    for(int i = 0; i < numClients; i++) {
+    for (int i = 0; i < numClients; i++) {
       try {
         System.out.println("connecting... (" + i + ")");
         Socket server = new Socket(host, port);
         Player player = new NamedPlayer("Player_" + i);
         GameType type = GameType.SINGLE;
-        Future<Boolean> future = service.submit(() -> {new ProxyReferee(server, player, type).run(); return true;});
+        Future<Boolean> future = service.submit(() -> {
+          new ProxyReferee(server, player, type).run();
+          return true;
+        });
         clients.add(future);
         System.out.println("Spawned player " + player);
-      }
-      catch (IOException e) {
+      } catch (IOException e) {
         System.err.println("IO Exception: " + e);
       }
     }
 
-
-    for(Future<Boolean> client : clients) {
+    for (Future<Boolean> client : clients) {
       try {
         client.get();
       } catch (InterruptedException | ExecutionException e) {

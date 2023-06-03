@@ -21,7 +21,7 @@ import json.VolleyJSON;
 import json.WinJSON;
 import server.GameType;
 
-public class ProxyReferee implements Runnable{
+public class ProxyReferee implements Runnable {
 
   private static final boolean DEBUG = true;
 
@@ -41,19 +41,20 @@ public class ProxyReferee implements Runnable{
 
   @Override
   public void run() {
-    while(!this.isGameOver) {
+    while (!this.isGameOver) {
       Optional<MessageJSON> receivedJson = this.communication.receiveJson();
 
-      if(receivedJson.isPresent()) {
+      if (receivedJson.isPresent()) {
 
         MessageJSON message = receivedJson.get();
 
-        if(DEBUG) System.out.println(this.player.name() + " received: " + message);
+        if (DEBUG) {
+          System.out.println(this.player.name() + " received: " + message);
+        }
 
         delegateMessage(message);
 
-      }
-      else {
+      } else {
         this.isGameOver = true; // no message, give up and leave
       }
     }
@@ -65,25 +66,19 @@ public class ProxyReferee implements Runnable{
     String name = message.messageName();
     JsonNode arguments = message.arguments();
 
-    if("join".equals(name)) {
+    if ("join".equals(name)) {
       join();
-    }
-    else if("setup".equals(name)) {
+    } else if ("setup".equals(name)) {
       setup(arguments);
-    }
-    else if("take-shots".equals(name)) {
+    } else if ("take-shots".equals(name)) {
       takeShots();
-    }
-    else if("report-damage".equals(name)) {
+    } else if ("report-damage".equals(name)) {
       reportDamage(arguments);
-    }
-    else if("successful-hits".equals(name)) {
+    } else if ("successful-hits".equals(name)) {
       successfulHits(arguments);
-    }
-    else if("end-game".equals(name)) {
+    } else if ("end-game".equals(name)) {
       win(arguments);
-    }
-    else {
+    } else {
       throw new IllegalArgumentException("Unknown request: " + name + " " + arguments.asText());
     }
   }
@@ -94,7 +89,9 @@ public class ProxyReferee implements Runnable{
     JsonNode arguments = JsonUtils.serializeRecordToJson(playerJSON);
     MessageJSON response = new MessageJSON("join", arguments);
 
-    if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
+    if (DEBUG) {
+      System.out.println(this.player.name() + " sent: " + response);
+    }
     this.communication.sendJson(response);
   }
 
@@ -106,7 +103,9 @@ public class ProxyReferee implements Runnable{
     JsonNode node = serializeFleet(ships);
     MessageJSON response = new MessageJSON("setup", node);
 
-    if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
+    if (DEBUG) {
+      System.out.println(this.player.name() + " sent: " + response);
+    }
     this.communication.sendJson(response);
   }
 
@@ -117,7 +116,9 @@ public class ProxyReferee implements Runnable{
     JsonNode node = JsonUtils.serializeRecordToJson(volleyJSONResponse);
     MessageJSON response = new MessageJSON("take-shots", node);
 
-    if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
+    if (DEBUG) {
+      System.out.println(this.player.name() + " sent: " + response);
+    }
     this.communication.sendJson(response);
   }
 
@@ -130,7 +131,9 @@ public class ProxyReferee implements Runnable{
     JsonNode node = JsonUtils.serializeRecordToJson(volleyJSONResponse);
     MessageJSON response = new MessageJSON("report-damage", node);
 
-    if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
+    if (DEBUG) {
+      System.out.println(this.player.name() + " sent: " + response);
+    }
     this.communication.sendJson(response);
   }
 
@@ -142,7 +145,9 @@ public class ProxyReferee implements Runnable{
     JsonNode node = JsonNodeFactory.instance.objectNode();
     MessageJSON response = new MessageJSON("successful-hits", node);
 
-    if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
+    if (DEBUG) {
+      System.out.println(this.player.name() + " sent: " + response);
+    }
     this.communication.sendJson(response);
   }
 
@@ -156,10 +161,11 @@ public class ProxyReferee implements Runnable{
     JsonNode node = JsonNodeFactory.instance.objectNode();
     MessageJSON response = new MessageJSON("end-game", node);
 
-    if(DEBUG) System.out.println(this.player.name() + " sent: " + response);
+    if (DEBUG) {
+      System.out.println(this.player.name() + " sent: " + response);
+    }
     this.communication.sendJson(response);
   }
-
 
 
   private static JsonNode serializeFleet(List<Ship> ships) {
@@ -168,7 +174,7 @@ public class ProxyReferee implements Runnable{
 
     ArrayNode arrayNode = factory.arrayNode();
 
-    for(Ship ship : ships) {
+    for (Ship ship : ships) {
       ObjectNode shipNode = factory.objectNode();
       shipNode.set("coord", mapper.convertValue(ship.getStartPoint(), JsonNode.class));
       shipNode.set("length", factory.numberNode(ship.getLength()));
