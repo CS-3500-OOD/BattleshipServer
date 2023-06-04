@@ -33,7 +33,7 @@ public class PlayerImp implements Player {
   @Override
   public List<Ship> setup(int height, int width, Map<ShipType, Integer> spec) {
     Map<ShipType, Integer> specifications = new HashMap<>(spec);
-    this.OpponentBoard = new CellStatus[width][height];
+    this.OpponentBoard = new CellStatus[height][width];
     this.possibleShots = new ArrayList<>();
     for (int row = 0; row < OpponentBoard.length; row++) {
       for (int col = 0; col < OpponentBoard[0].length; col++) {

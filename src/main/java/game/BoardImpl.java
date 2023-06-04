@@ -17,7 +17,7 @@ public class BoardImpl extends PlayerImp implements Board {
 
   @Override
   public List<Ship> setup(int height, int width, Map<ShipType, Integer> spec) {
-    this.OpponentBoard = new CellStatus[width][height];
+    this.OpponentBoard = new CellStatus[height][width];
     this.possibleShots = new ArrayList<>();
     for (int row = 0; row < OpponentBoard.length; row++) {
       for (int col = 0; col < OpponentBoard[0].length; col++) {

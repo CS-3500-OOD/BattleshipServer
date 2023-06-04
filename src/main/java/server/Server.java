@@ -61,6 +61,7 @@ public class Server {
       printHelpMessage(options);
     } else {
       handleMiscOptions(commandLine);
+
       int port = PROPERTIES.getInt("default_port", 35001);
       runServer(port);
     }
