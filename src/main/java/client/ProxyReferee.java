@@ -23,7 +23,7 @@ import server.GameType;
 
 public class ProxyReferee implements Runnable {
 
-  private static final boolean DEBUG = true;
+  private static final boolean DEBUG = false;
 
   private final JsonSocketCommunication communication;
   private final Player player;
