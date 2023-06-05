@@ -31,9 +31,9 @@ public class BoardImpl extends PlayerImp implements Board {
 
   @Override
   public boolean shotIsValid(Coord c) {
-    boolean flag = !(previousShotTracker.contains(c)) ||
-        !((c.x() >= 0 && c.x() <= super.OpponentBoard[1].length) &&
-            (c.y() >= 0 && c.y() <= super.OpponentBoard.length));
+    boolean flag = !(previousShotTracker.contains(c)) &&
+        ((c.x() >= 0 && c.x() < super.OpponentBoard[1].length) &&
+            (c.y() >= 0 && c.y() < super.OpponentBoard.length));
     previousShotTracker.add(c);
     return flag;
   }
