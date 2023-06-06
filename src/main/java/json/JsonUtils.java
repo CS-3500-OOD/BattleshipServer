@@ -34,6 +34,11 @@ public class JsonUtils {
     return mapper.convertValue(fromValue, toValueType);
   }
 
+
+  public static MessageJSON buildMessageJSON(String name, Record argument) {
+    return new MessageJSON(name, serializeRecordToJson(argument));
+  }
+
   /**
    * Attempts to print a record as an indented Json String.
    *

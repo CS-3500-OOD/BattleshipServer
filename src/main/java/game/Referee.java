@@ -2,6 +2,7 @@ package game;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +30,8 @@ public class Referee implements IReferee {
       false);
 
 
+  private final List<String> winners;
+
   public Referee(Player p1, Player p2) {
     this(p1, p2, UUID.randomUUID().toString());
   }
@@ -39,6 +42,7 @@ public class Referee implements IReferee {
     this.gameUniqueMarker = new Log4jMarker(gameUUID);
     this.p1Board = new BoardImpl();
     this.p2Board = new BoardImpl();
+    winners = new ArrayList<>();
   }
 
   //TODO: MAYBE, check if shots are firing upon repeat locations? Depends on what we expect from Students
@@ -47,7 +51,7 @@ public class Referee implements IReferee {
    * Execute Game Of BattleShip.
    */
   @Override
-  public boolean run() {
+  public List<String> run() {
       if (Server.DEBUG && GAME_DEBUG) {
           logger.info(this.gameUniqueMarker, "Starting game...");
       }
@@ -63,7 +67,7 @@ public class Referee implements IReferee {
     boolean validSetups = checkValidSetups(setupParameters, c1Ships, c2Ships);
 
     if (!validSetups) {
-      return false;
+      return Collections.emptyList();
     }
 
     // Place Boats on tracking boards
@@ -77,7 +81,7 @@ public class Referee implements IReferee {
     return gameLoop();
   }
 
-  private boolean gameLoop() {
+  private List<String> gameLoop() {
     while (true) {
 
       List<Coord> p1AttackVolley = client1.takeShots();
@@ -86,7 +90,7 @@ public class Referee implements IReferee {
       boolean validVolleys = checkValidVolleys(p1AttackVolley, p2AttackVolley);
 
       if (!validVolleys) {
-        return false;
+        return Collections.emptyList();
       }
 
       p1Board.removePossibleShots(p1AttackVolley);
@@ -101,7 +105,7 @@ public class Referee implements IReferee {
       }
 
       if (isGameOver()) {
-        return true;
+        return winners;
       }
 
       List<Coord> damageDoneToP1 = client1.reportDamage(p2AttackVolley);
@@ -111,7 +115,7 @@ public class Referee implements IReferee {
           damageDoneToP2);
 
       if (!validReports) {
-        return false;
+        return Collections.emptyList();
       }
 
       if (Server.DEBUG && GAME_DEBUG) {
@@ -226,10 +230,19 @@ public class Referee implements IReferee {
       GameResult result1 = draw ? GameResult.DRAW : (p1Won ? GameResult.WIN : GameResult.LOSE);
       GameResult result2 = draw ? GameResult.DRAW : (p2Won ? GameResult.WIN : GameResult.LOSE);
 
+      String tieReason = "You tied!";
       String winReason = "You won!";
       String loseReason = "You lost!";
-      client1.endGame(result1, p1Won ? winReason : loseReason); //jngroksngbklsn client1
-      client2.endGame(result2, p2Won ? winReason : loseReason); //jgnrosng client2
+      client1.endGame(result1, draw ? tieReason : (p1Won ? winReason : loseReason)); //jngroksngbklsn client1
+      client2.endGame(result2, draw ? tieReason : (p2Won ? winReason : loseReason)); //jgnrosng client2
+
+      if(p1Won) {
+        winners.add(client1.name());
+      }
+      if(p2Won) {
+        winners.add(client2.name());
+      }
+
       return true; // game over, someone won
     }
     return false;

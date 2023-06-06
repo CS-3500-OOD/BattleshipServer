@@ -1,6 +1,8 @@
 package game;
 
+import java.util.List;
+
 public interface IReferee {
 
-  boolean run();
+  List<String> run();
 }

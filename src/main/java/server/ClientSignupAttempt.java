@@ -2,13 +2,16 @@ package server;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import game.GameResult;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Optional;
 import json.JsonSocketCommunication;
+import json.JsonUtils;
 import json.MessageJSON;
 import json.PlayerJSON;
+import json.EndGameJSON;
 
 public class ClientSignupAttempt implements Runnable {
 
@@ -32,12 +35,22 @@ public class ClientSignupAttempt implements Runnable {
       Optional<MessageJSON> messageJSON = communication.receiveJson();
 
       if (messageJSON.isPresent() && "join".equals(messageJSON.get().messageName())) {
+
         PlayerJSON playerJSON = new ObjectMapper().convertValue(messageJSON.get().arguments(),
             PlayerJSON.class);
-        ProxyPlayer player = new ProxyPlayer(client, playerJSON.name(), playerJSON.gameType());
-        manager.addPlayerToQueue(player);
+
+        if(manager.isPlayerNameAllowedToJoin(playerJSON.name())) {
+          ProxyPlayer player = new ProxyPlayer(client, playerJSON.name(), playerJSON.gameType());
+          manager.addPlayerToQueue(player);
+        }
+        else {
+          Server.logger.info("Player " + playerJSON.name() + " is not on the whitelist");
+          communication.sendJson(JsonUtils.buildMessageJSON("end-game", new EndGameJSON(GameResult.LOSE, "You are not allowed to join the server.")));
+          communication.endCommunication();
+        }
       } else {
-        client.close();
+        communication.sendJson(JsonUtils.buildMessageJSON("end-game", new EndGameJSON(GameResult.LOSE, "Invalid join message.")));
+        communication.endCommunication();
       }
     } catch (IOException e) {
       // client connection interrupted or client sent bad input

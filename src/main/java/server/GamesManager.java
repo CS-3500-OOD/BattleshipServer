@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
@@ -43,6 +45,11 @@ public class GamesManager {
 
   private boolean stopServerFlag;
 
+  private Set<String> allowedClientNames;
+  private boolean whitelistEnabled;
+  private Set<String> winners;
+  private final Object dataLock;
+
   public GamesManager(int port) {
     this.clientsAcceptor = new ClientsAcceptor(port, this);
     this.inputListener = new InputListener(this);
@@ -54,7 +61,12 @@ public class GamesManager {
     this.executorService = new BoundedExecutorService(
         Executors.newFixedThreadPool(numThreadsInPool), numThreadsInPool);
 
-    this.activeGames = new HashMap<>(); //Collections.synchronizedMap(new HashMap<String, Future<Boolean>>());
+    this.activeGames = new HashMap<>();
+
+    this.allowedClientNames = new HashSet<>();
+    this.whitelistEnabled = false;
+    this.winners = new HashSet<>();
+    this.dataLock = new Object();
   }
 
   /**
@@ -174,7 +186,14 @@ public class GamesManager {
       Referee referee = new Referee(player1, player2);
 
       Callable<Boolean> game = () -> {
-        referee.run();
+        List<String> winners = referee.run();
+        synchronized (this.dataLock) {
+          this.winners.addAll(winners);
+          if(this.whitelistEnabled) {
+            this.allowedClientNames.removeAll(List.of(player1.name(), player2.name()));
+          }
+        }
+
         this.activeGames.remove(gameId);
         Server.logger.info("Game " + gameId + " finished.");
         Server.logger.info(
@@ -221,6 +240,32 @@ public class GamesManager {
       } catch (ExecutionException | InterruptedException | TimeoutException ignored) {
 
       }
+    }
+  }
+
+
+  public boolean isPlayerNameAllowedToJoin(String name) {
+    return !this.whitelistEnabled || this.allowedClientNames.contains(name);
+  }
+
+  public void enableWhitelist(Set<String> allowedClientNames) {
+    this.allowedClientNames = allowedClientNames;
+    this.whitelistEnabled = true;
+  }
+
+  public void disableWhitelist() {
+    this.whitelistEnabled = false;
+  }
+
+  public Set<String> getWinners() {
+    synchronized (this.dataLock) {
+      return new HashSet<>(this.winners);
+    }
+  }
+
+  public void resetWinners() {
+    synchronized (this.dataLock) {
+      this.winners = new HashSet<>();
     }
   }
 }

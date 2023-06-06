@@ -1,10 +1,15 @@
 package client;
 
 import game.Player;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
+import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,6 +23,8 @@ import server.GameType;
 public class Client {
 
   static final Logger logger = LogManager.getLogger(Client.class);
+
+  private static final String NAMES_PATH = "/Users/nickselvitelli/Desktop/cs3500_usernames.txt";
 
   public static void main(String[] args) {
     Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
@@ -43,12 +50,18 @@ public class Client {
     ExecutorService service = Executors.newFixedThreadPool(numClients);
     List<Future<Boolean>> clients = new ArrayList<>();
 
+    List<String> names = getNames();
+
     for (int i = 0; i < numClients; i++) {
       try {
         System.out.println("connecting... (" + i + ")");
         Socket server = new Socket(host, port);
-        Player player = new NamedPlayer("Player_" + i);
+
+        String name = names.isEmpty() ? ("NickPlayer_" + i) : names.remove(0);
+        Player player = new NamedPlayer(name);
+
         GameType type = GameType.SINGLE;
+
         Future<Boolean> future = service.submit(() -> {
           new ProxyReferee(server, player, type).run();
           return true;
@@ -66,6 +79,15 @@ public class Client {
       } catch (InterruptedException | ExecutionException e) {
         System.err.println("Client thread error: " + e);
       }
+    }
+  }
+
+
+  private static List<String> getNames() {
+    try {
+      return Files.readAllLines(new File(NAMES_PATH).toPath());
+    } catch (IOException e) {
+      return Collections.emptyList();
     }
   }
 }

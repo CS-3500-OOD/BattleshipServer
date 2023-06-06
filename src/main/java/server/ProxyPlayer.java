@@ -28,7 +28,7 @@ import json.JsonUtils;
 import json.MessageJSON;
 import json.SetupJSON;
 import json.VolleyJSON;
-import json.WinJSON;
+import json.EndGameJSON;
 
 /**
  * Class used to facilitate socket communication with a client using the JSON communication design.
@@ -123,8 +123,8 @@ public class ProxyPlayer implements Player {
 
   @Override
   public void endGame(GameResult result, String reason) {
-    WinJSON winJSON = new WinJSON(result, reason);
-    JsonNode messageArgs = JsonUtils.serializeRecordToJson(winJSON);
+    EndGameJSON endGameJSON = new EndGameJSON(result, reason);
+    JsonNode messageArgs = JsonUtils.serializeRecordToJson(endGameJSON);
     MessageJSON messageJSON = new MessageJSON("end-game", messageArgs);
     this.communication.sendJson(messageJSON);
 

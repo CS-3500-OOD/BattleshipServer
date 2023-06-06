@@ -18,7 +18,7 @@ import json.MessageJSON;
 import json.PlayerJSON;
 import json.SetupJSON;
 import json.VolleyJSON;
-import json.WinJSON;
+import json.EndGameJSON;
 import server.GameType;
 
 public class ProxyReferee implements Runnable {
@@ -153,9 +153,9 @@ public class ProxyReferee implements Runnable {
 
   private void win(JsonNode arguments) {
 
-    WinJSON winJSON = JsonUtils.convertNodeToRecord(arguments, WinJSON.class);
+    EndGameJSON endGameJSON = JsonUtils.convertNodeToRecord(arguments, EndGameJSON.class);
 
-    this.player.endGame(winJSON.result(), winJSON.reason());
+    this.player.endGame(endGameJSON.result(), endGameJSON.reason());
     this.isGameOver = true;
 
     JsonNode node = JsonNodeFactory.instance.objectNode();
