@@ -149,11 +149,8 @@ public class PlayerImp implements Player {
 
     for (int i = 0; i < number; i++) {
       Coord currentCoord = this.possibleShots.remove(random.nextInt(this.possibleShots.size()));
+      OpponentBoard[currentCoord.y()][currentCoord.x()] = CellStatus.SPLASH;
       retList.add(currentCoord);
-    }
-
-    for (Coord shot : retList) {
-      OpponentBoard[shot.y()][shot.x()] = CellStatus.SPLASH;
     }
     return retList;
   }

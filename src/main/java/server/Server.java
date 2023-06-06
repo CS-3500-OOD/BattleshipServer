@@ -20,7 +20,6 @@ public class Server {
 
   static {
     System.setProperty("log4j.configurationFile", "resources/log4j2.xml");
-//    Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
   }
 
   public static final Preferences PROPERTIES = ServerProperties.getPreferences();

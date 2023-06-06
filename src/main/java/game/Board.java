@@ -24,5 +24,9 @@ public interface Board extends Player {
 
   void removePossibleShots(List<Coord> shots);
 
+  boolean entireFleetSunk();
+
+  List<Ship> shipsAlive();
+
 
 }

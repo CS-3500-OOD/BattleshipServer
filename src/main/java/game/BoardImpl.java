@@ -47,7 +47,7 @@ public class BoardImpl extends PlayerImp implements Board {
       }
     }
     return Math.min(acc,
-        this.possibleShots.size()); // NOTE: IF THERE ARE NO SHOTS LEFT, they can only take that many.
+    this.possibleShots.size()); // NOTE: IF THERE ARE NO SHOTS LEFT, they can only take that many.
   }
 
   @Override
@@ -55,5 +55,21 @@ public class BoardImpl extends PlayerImp implements Board {
     for (Coord shot : shots) {
       this.possibleShots.remove(shot);
     }
+  }
+
+  @Override
+  public boolean entireFleetSunk() {
+    return shipsAlive().isEmpty();
+  }
+
+  @Override
+  public List<Ship> shipsAlive() {
+    List<Ship> alive = new ArrayList<>();
+    for(Ship ship : this.fleet) {
+      if(!ship.isSunk()) {
+        alive.add(new Ship(ship.getStartPoint(), ship.getLength(), ship.getDir()));
+      }
+    }
+    return alive;
   }
 }

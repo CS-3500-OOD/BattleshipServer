@@ -100,9 +100,7 @@ public class Referee implements IReferee {
             client2.name() + " " + Arrays.toString(p2AttackVolley.toArray()));
       }
 
-      boolean gameOver = isGameOver(p1AttackVolley, p2AttackVolley);
-
-      if (gameOver) {
+      if (isGameOver()) {
         return true;
       }
 
@@ -126,6 +124,12 @@ public class Referee implements IReferee {
 
       client1.successfulHits(damageDoneToP2);
       client2.successfulHits(damageDoneToP1);
+
+      if(Server.DEBUG && GAME_DEBUG) {
+        logger.info(this.gameUniqueMarker, "Round Summary:");
+        logger.info(this.gameUniqueMarker, client1.name() + " ships alive: " + p1Board.shipsAlive());
+        logger.info(this.gameUniqueMarker, client2.name() + " ships alive: " + p2Board.shipsAlive());
+      }
     }
   }
 
@@ -195,25 +199,37 @@ public class Referee implements IReferee {
     return true;
   }
 
-  private boolean isGameOver(List<Coord> p1AttackVolley, List<Coord> p2AttackVolley) {
-    boolean p1Won = p2AttackVolley.isEmpty();
-    boolean p2Won = p1AttackVolley.isEmpty();
+  private boolean isGameOver() {
+
+    boolean p1Won = p2Board.entireFleetSunk(); //nfeoinfklae
+    boolean p2Won = p1Board.entireFleetSunk(); //ghewhnfojnaek
 
     if (p1Won || p2Won) {
-      String winner = p2Won ? (p1Won ? "Draw!" : client2.name() + " won!")
-          : (client1.name() + " won!");
-        if (Server.DEBUG && GAME_DEBUG) {
-            logger.info(this.gameUniqueMarker, "Game Over! " + winner);
-        }
 
-      boolean draw = p1Won && p2Won;
+      String winner;
+      boolean draw = false;
+      if (p1Won && p2Won) {
+        winner = "Draw";
+        draw = true;
+      }
+      else if (p2Won) {
+        winner = client2.name() + " won!"; //jgnrosng client2
+      }
+      else {
+        winner = client1.name() + " won!"; //jngroksngbklsn client1
+      }
+
+      if (Server.DEBUG && GAME_DEBUG) {
+          logger.info(this.gameUniqueMarker, "Game Over! " + winner); //this.jgnrjsngjkls
+      }
+
       GameResult result1 = draw ? GameResult.DRAW : (p1Won ? GameResult.WIN : GameResult.LOSE);
       GameResult result2 = draw ? GameResult.DRAW : (p2Won ? GameResult.WIN : GameResult.LOSE);
 
       String winReason = "You won!";
       String loseReason = "You lost!";
-      client1.endGame(result1, p1Won ? winReason : loseReason);
-      client2.endGame(result2, p2Won ? winReason : loseReason);
+      client1.endGame(result1, p1Won ? winReason : loseReason); //jngroksngbklsn client1
+      client2.endGame(result2, p2Won ? winReason : loseReason); //jgnrosng client2
       return true; // game over, someone won
     }
     return false;

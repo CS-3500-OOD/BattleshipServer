@@ -70,6 +70,7 @@ public class GamesManager {
     this.executorService.submit(inputListener::acceptInput);
 
     Server.logger.info("Starting to attempt spawning new games");
+
     while (!stopServerFlag) {
       if (!this.clientsWaitingToPlay.isEmpty()) {
         Server.logger.info("Queue: " + this.clientsWaitingToPlay);
