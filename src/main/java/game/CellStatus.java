@@ -6,5 +6,5 @@ package game;
  * it - Hit: Formerly ship, Struck - Splash: A cell that was empty, Struck
  */
 public enum CellStatus {
-  EMPTY, HIT, SPLASH
+  EMPTY, HIT, SPLASH, SHIP
 }

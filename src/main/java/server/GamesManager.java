@@ -49,6 +49,7 @@ public class GamesManager {
   private boolean whitelistEnabled;
   private Set<String> winners;
   private final Object dataLock;
+  private Optional<Observer> observer;
 
   public GamesManager(int port) {
     this.clientsAcceptor = new ClientsAcceptor(port, this);
@@ -67,6 +68,7 @@ public class GamesManager {
     this.whitelistEnabled = false;
     this.winners = new HashSet<>();
     this.dataLock = new Object();
+    this.observer = Optional.empty();
   }
 
   /**
@@ -183,7 +185,7 @@ public class GamesManager {
   private void attemptSpawnGame(Player player1, Player player2) {
     try {
       String gameId = UUID.randomUUID().toString();
-      Referee referee = new Referee(player1, player2);
+      Referee referee = new Referee(player1, player2, gameId, this.observer);
 
       Callable<Boolean> game = () -> {
         List<String> winners = referee.run();
@@ -267,5 +269,9 @@ public class GamesManager {
     synchronized (this.dataLock) {
       this.winners = new HashSet<>();
     }
+  }
+
+  public void setObserver(Optional<Observer> observer) {
+    this.observer = observer;
   }
 }

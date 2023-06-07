@@ -1,5 +1,6 @@
 package server;
 
+import java.util.Optional;
 import java.util.Scanner;
 
 /**
@@ -9,10 +10,12 @@ import java.util.Scanner;
  */
 public class InputListener {
 
-  private static final String QUIT = "quit";
-  private static final String WHITELIST = "whitelist";
+  private static final String QUIT = "quit"; // no args
+  private static final String WHITELIST = "whitelist"; // takes filepath as single arg
 
-  private static final String PRINT_WINNERS = "print_winners";
+  private static final String PRINT_WINNERS = "print_winners"; // takes filepath as single arg
+
+  private static final String OBSERVER = "observer"; // takes host and port as args
 
   private final GamesManager manager;
 
@@ -37,18 +40,38 @@ public class InputListener {
       }
       else if (tokens.length > 0) {
 
-        if(WHITELIST.equalsIgnoreCase(tokens[0])) {
-          whitelist(tokens);
-        }
-
-        if(PRINT_WINNERS.equalsIgnoreCase(tokens[0])) {
-          printWinners(tokens);
+        switch (tokens[0].toLowerCase()) {
+          case WHITELIST -> whitelist(tokens);
+          case PRINT_WINNERS -> printWinners(tokens);
+          case OBSERVER -> addObserver(tokens);
         }
 
       }
       else if(!line.isBlank()) {
         Server.logger.info("[INPUT] To stop the server, type 'quit'");
       }
+    }
+  }
+
+  private void addObserver(String[] tokens) {
+    if(tokens.length == 3) {
+      try {
+        Observer observer = new Observer(tokens[1], Integer.parseInt(tokens[2]));
+        if(observer.isConnected()) {
+          this.manager.setObserver(Optional.of(observer));
+          Server.logger.info("Added observer.");
+        }
+        else {
+          Server.logger.info("Unable to connect to the specified observer.");
+        }
+      }
+      catch (NumberFormatException e) {
+        Server.logger.info("Invalid port number.");
+      }
+    }
+    else {
+      Server.logger.info("Removing observer. use '" + OBSERVER + " [host] [port]' to add a new observer.");
+      this.manager.setObserver(Optional.empty());
     }
   }
 

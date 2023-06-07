@@ -132,6 +132,19 @@ public class Ship {
     }
   }
 
+  public List<Coord> getCoordinates() {
+    List<Coord> coords = new ArrayList<>();
+    for(int i = 0; i < this.length; i++) {
+      if(this.orientation == Dir.HORIZONTAL) {
+        coords.add(new Coord(this.startPoint.x() + i, this.startPoint.y()));
+      }
+      else {
+        coords.add(new Coord(this.startPoint.x(), this.startPoint.y() + i));
+      }
+    }
+    return coords;
+  }
+
 
   @Override
   public String toString() {

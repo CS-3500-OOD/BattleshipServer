@@ -7,13 +7,17 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import json.SetupJSON;
+import json.ObserverJSON;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager.Log4jMarker;
+import server.Observer;
+import server.ObserverBoardView;
 import server.Server;
 
 public class Referee implements IReferee {
@@ -24,6 +28,7 @@ public class Referee implements IReferee {
   private final Player client2;
 
   private final Marker gameUniqueMarker;
+  private final String gameID;
 
   private static final Logger logger = LogManager.getLogger(Referee.class);
   private static final boolean GAME_DEBUG = Server.PROPERTIES.getBoolean("game_specific_debug",
@@ -32,17 +37,35 @@ public class Referee implements IReferee {
 
   private final List<String> winners;
 
+  private Optional<Observer> observerOptional;
+
+  /**
+   * 4 boards.
+   * 0 - player 1 home
+   * 1 - player 1 opp view
+   * 2 - player 2 home
+   * 3 - player 2 opp view
+   */
+  private ObserverBoardView[] observerBoards;
+
   public Referee(Player p1, Player p2) {
     this(p1, p2, UUID.randomUUID().toString());
   }
 
   public Referee(Player p1, Player p2, String gameUUID) {
+    this(p1, p2, gameUUID, Optional.empty());
+  }
+
+  public Referee(Player p1, Player p2, String gameUUID, Optional<Observer> observer) {
     this.client1 = p1;
     this.client2 = p2;
     this.gameUniqueMarker = new Log4jMarker(gameUUID);
+    this.gameID = gameUUID;
     this.p1Board = new BoardImpl();
     this.p2Board = new BoardImpl();
     winners = new ArrayList<>();
+    this.observerOptional = observer;
+    this.observerBoards = new ObserverBoardView[4];
   }
 
   //TODO: MAYBE, check if shots are firing upon repeat locations? Depends on what we expect from Students
@@ -74,15 +97,19 @@ public class Referee implements IReferee {
     p1Board.mirrorClientPlacement(c1Ships);
     p2Board.mirrorClientPlacement(c2Ships);
 
-      if (Server.DEBUG && GAME_DEBUG) {
-          logger.info(this.gameUniqueMarker, "Starting game loop.");
-      }
+    this.addShipsToObserver(c1Ships, c2Ships);
+
+    if (Server.DEBUG && GAME_DEBUG) {
+        logger.info(this.gameUniqueMarker, "Starting game loop.");
+    }
 
     return gameLoop();
   }
 
+
   private List<String> gameLoop() {
     while (true) {
+      this.updateObserver(false);
 
       List<Coord> p1AttackVolley = client1.takeShots();
       List<Coord> p2AttackVolley = client2.takeShots();
@@ -105,6 +132,7 @@ public class Referee implements IReferee {
       }
 
       if (isGameOver()) {
+        this.updateObserver(true);
         return winners;
       }
 
@@ -129,12 +157,61 @@ public class Referee implements IReferee {
       client1.successfulHits(damageDoneToP2);
       client2.successfulHits(damageDoneToP1);
 
+      this.addHitsAndMissesToObserver(p1AttackVolley, damageDoneToP2, p2AttackVolley, damageDoneToP1);
+
       if(Server.DEBUG && GAME_DEBUG) {
         logger.info(this.gameUniqueMarker, "Round Summary:");
         logger.info(this.gameUniqueMarker, client1.name() + " ships alive: " + p1Board.shipsAlive());
         logger.info(this.gameUniqueMarker, client2.name() + " ships alive: " + p2Board.shipsAlive());
       }
     }
+  }
+
+  private void updateObserver(boolean gameOver) {
+    if(observerOptional.isEmpty()) return;
+
+    Observer observer = this.observerOptional.get();
+
+    ObserverJSON json = new ObserverJSON(
+        this.gameID,
+        gameOver,
+        this.client1.name(),
+        this.client2.name(),
+        this.observerBoards[0].getBoard(),
+        this.observerBoards[1].getBoard(),
+        this.observerBoards[2].getBoard(),
+        this.observerBoards[3].getBoard());
+
+    observer.updateObserver(json);
+  }
+
+  private void addShipsToObserver(List<Ship> c1Ships, List<Ship> c2Ships) {
+    List<Coord> c1ShipCoords = new ArrayList<>();
+    for(Ship ship : c1Ships) {
+      c1ShipCoords.addAll(ship.getCoordinates());
+    }
+    this.observerBoards[0].addCoordsWithStatus(c1ShipCoords, CellStatus.SHIP);
+
+    List<Coord> c2ShipCoords = new ArrayList<>();
+    for(Ship ship : c2Ships) {
+      c2ShipCoords.addAll(ship.getCoordinates());
+    }
+    this.observerBoards[2].addCoordsWithStatus(c2ShipCoords, CellStatus.SHIP);
+  }
+
+  private void addHitsAndMissesToObserver(List<Coord> p1AttackVolley, List<Coord> p1Hits, List<Coord> p2AttackVolley, List<Coord> p2Hits) {
+    List<Coord> p1Misses = p1AttackVolley.stream().filter(a -> !p1Hits.contains(a)).toList();
+    List<Coord> p2Misses = p1AttackVolley.stream().filter(a -> !p2Hits.contains(a)).toList();
+
+    this.observerBoards[0].addCoordsWithStatus(p2Hits, CellStatus.HIT);
+    this.observerBoards[0].addCoordsWithStatus(p2Misses, CellStatus.SPLASH);
+    this.observerBoards[1].addCoordsWithStatus(p1Hits, CellStatus.HIT);
+    this.observerBoards[1].addCoordsWithStatus(p1Misses, CellStatus.SPLASH);
+
+    this.observerBoards[2].addCoordsWithStatus(p1Hits, CellStatus.HIT);
+    this.observerBoards[2].addCoordsWithStatus(p1Misses, CellStatus.SPLASH);
+    this.observerBoards[3].addCoordsWithStatus(p2Hits, CellStatus.HIT);
+    this.observerBoards[3].addCoordsWithStatus(p2Misses, CellStatus.SPLASH);
   }
 
   private boolean checkValidReports(List<Coord> p1AttackVolley, List<Coord> p2AttackVolley,
@@ -319,11 +396,16 @@ public class Referee implements IReferee {
       gameInfo.put(ship, gameInfo.getOrDefault(ship, 0) + 1);
     }
 
-      if (Server.DEBUG && GAME_DEBUG) {
-          logger.info(this.gameUniqueMarker,
-              "Board [" + width + "x" + height + "] - " + Arrays.toString(
-                  gameInfo.entrySet().toArray()));
-      }
+    if (Server.DEBUG && GAME_DEBUG) {
+        logger.info(this.gameUniqueMarker,
+            "Board [" + width + "x" + height + "] - " + Arrays.toString(
+                gameInfo.entrySet().toArray()));
+    }
+
+
+    for(int i = 0; i < 4; i++) {
+      this.observerBoards[i] = new ObserverBoardView(height, width);
+    }
 
     return new SetupJSON(height, width, gameInfo);
   }
