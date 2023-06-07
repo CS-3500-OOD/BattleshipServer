@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import game.Coord;
+import game.GameResult;
 import game.Player;
 import game.Ship;
 import java.io.IOException;
@@ -21,7 +22,7 @@ import json.VolleyJSON;
 import json.EndGameJSON;
 import server.GameType;
 
-public class ProxyReferee implements Runnable {
+public class ProxyReferee {
 
   private static final boolean DEBUG = false;
 
@@ -30,17 +31,22 @@ public class ProxyReferee implements Runnable {
   private final GameType type;
 
   private boolean isGameOver;
+  private GameResult result;
 
   public ProxyReferee(Socket server, Player player, GameType type) throws IOException {
     this.communication = new JsonSocketCommunication(server);
     this.player = player;
     this.type = type;
     this.isGameOver = false;
+    this.result = GameResult.LOSE;
   }
 
 
-  @Override
-  public void run() {
+  /**
+   *
+   * @return true if the given player won.
+   */
+  public GameResult run() {
     while (!this.isGameOver) {
       Optional<MessageJSON> receivedJson = this.communication.receiveJson();
 
@@ -59,6 +65,7 @@ public class ProxyReferee implements Runnable {
       }
     }
     this.communication.endCommunication();
+    return this.result;
   }
 
 
@@ -157,6 +164,7 @@ public class ProxyReferee implements Runnable {
 
     this.player.endGame(endGameJSON.result(), endGameJSON.reason());
     this.isGameOver = true;
+    this.result = endGameJSON.result();
 
     JsonNode node = JsonNodeFactory.instance.objectNode();
     MessageJSON response = new MessageJSON("end-game", node);

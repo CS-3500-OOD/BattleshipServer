@@ -1,5 +1,6 @@
 package client;
 
+import game.GameResult;
 import game.Player;
 import java.io.File;
 import java.io.IOException;
@@ -7,8 +8,10 @@ import java.net.Socket;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +51,7 @@ public class Client {
     System.out.println("Connecting " + numClients + " clients to " + host + ":" + port);
 
     ExecutorService service = Executors.newFixedThreadPool(numClients);
-    List<Future<Boolean>> clients = new ArrayList<>();
+    List<Future<GameResult>> clients = new ArrayList<>();
 
     List<String> names = getNames();
 
@@ -62,10 +65,7 @@ public class Client {
 
         GameType type = GameType.SINGLE;
 
-        Future<Boolean> future = service.submit(() -> {
-          new ProxyReferee(server, player, type).run();
-          return true;
-        });
+        Future<GameResult> future = service.submit(() -> new ProxyReferee(server, player, type).run());
         clients.add(future);
         System.out.println("Spawned player " + player);
       } catch (IOException e) {
@@ -73,13 +73,17 @@ public class Client {
       }
     }
 
-    for (Future<Boolean> client : clients) {
+    Map<GameResult, Integer> results = new HashMap<>();
+
+    for (Future<GameResult> client : clients) {
       try {
-        client.get();
+        GameResult result = client.get();
+        results.put(result, results.getOrDefault(result, 0) + 1);
       } catch (InterruptedException | ExecutionException e) {
         System.err.println("Client thread error: " + e);
       }
     }
+    System.out.println(results);
   }
 
 
