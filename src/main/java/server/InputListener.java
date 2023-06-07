@@ -17,6 +17,8 @@ public class InputListener {
 
   private static final String OBSERVER = "observer"; // takes host and port as args
 
+  private static final String DELAY = "delay"; // takes num milliseconds as an arg
+
   private final GamesManager manager;
 
   public InputListener(GamesManager manager) {
@@ -44,12 +46,30 @@ public class InputListener {
           case WHITELIST -> whitelist(tokens);
           case PRINT_WINNERS -> printWinners(tokens);
           case OBSERVER -> addObserver(tokens);
+          case DELAY -> setDelay(tokens);
         }
 
       }
       else if(!line.isBlank()) {
         Server.logger.info("[INPUT] To stop the server, type 'quit'");
       }
+    }
+  }
+
+  private void setDelay(String[] tokens) {
+    if(tokens.length == 2) {
+      try {
+        int delay = Integer.parseInt(tokens[1]);
+        this.manager.setDelay(delay);
+        Server.logger.info("Set round delay to " + delay + " milliseconds.");
+      }
+      catch (NumberFormatException e) {
+        Server.logger.info("Invalid delay.");
+      }
+    }
+    else {
+      Server.logger.info("Removing delay. Use '" + DELAY + " [number of milliseconds]' to add a new delay");
+      this.manager.setDelay(-1);
     }
   }
 
@@ -70,7 +90,7 @@ public class InputListener {
       }
     }
     else {
-      Server.logger.info("Removing observer. use '" + OBSERVER + " [host] [port]' to add a new observer.");
+      Server.logger.info("Removing observer. Use '" + OBSERVER + " [host] [port]' to add a new observer.");
       this.manager.setObserver(Optional.empty());
     }
   }

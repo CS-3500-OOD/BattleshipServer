@@ -48,15 +48,17 @@ public class Referee implements IReferee {
    */
   private ObserverBoardView[] observerBoards;
 
+  private int delayBetweenRoundsMillis;
+
   public Referee(Player p1, Player p2) {
     this(p1, p2, UUID.randomUUID().toString());
   }
 
   public Referee(Player p1, Player p2, String gameUUID) {
-    this(p1, p2, gameUUID, Optional.empty());
+    this(p1, p2, gameUUID, Optional.empty(), -1);
   }
 
-  public Referee(Player p1, Player p2, String gameUUID, Optional<Observer> observer) {
+  public Referee(Player p1, Player p2, String gameUUID, Optional<Observer> observer, int delayBetweenRoundsMillis) {
     this.client1 = p1;
     this.client2 = p2;
     this.gameUniqueMarker = new Log4jMarker(gameUUID);
@@ -66,6 +68,7 @@ public class Referee implements IReferee {
     winners = new ArrayList<>();
     this.observerOptional = observer;
     this.observerBoards = new ObserverBoardView[4];
+    this.delayBetweenRoundsMillis = delayBetweenRoundsMillis;
   }
 
   //TODO: MAYBE, check if shots are firing upon repeat locations? Depends on what we expect from Students
@@ -110,6 +113,14 @@ public class Referee implements IReferee {
   private List<String> gameLoop() {
     while (true) {
       this.updateObserver(false);
+
+      if(this.delayBetweenRoundsMillis > 0) {
+        try {
+          Thread.sleep(this.delayBetweenRoundsMillis);
+        } catch (InterruptedException e) {
+          logger.error("Unable to sleep thread.");
+        }
+      }
 
       List<Coord> p1AttackVolley = client1.takeShots();
       List<Coord> p2AttackVolley = client2.takeShots();

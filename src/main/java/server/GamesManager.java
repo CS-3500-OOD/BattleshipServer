@@ -50,6 +50,7 @@ public class GamesManager {
   private Set<String> winners;
   private final Object dataLock;
   private Optional<Observer> observer;
+  private int refereeDelayBetweenRoundsMillis;
 
   public GamesManager(int port) {
     this.clientsAcceptor = new ClientsAcceptor(port, this);
@@ -69,6 +70,7 @@ public class GamesManager {
     this.winners = new HashSet<>();
     this.dataLock = new Object();
     this.observer = Optional.empty();
+    this.refereeDelayBetweenRoundsMillis = -1;
   }
 
   /**
@@ -185,7 +187,7 @@ public class GamesManager {
   private void attemptSpawnGame(Player player1, Player player2) {
     try {
       String gameId = UUID.randomUUID().toString();
-      Referee referee = new Referee(player1, player2, gameId, this.observer);
+      Referee referee = new Referee(player1, player2, gameId, this.observer, this.refereeDelayBetweenRoundsMillis);
 
       Callable<Boolean> game = () -> {
         List<String> winners = referee.run();
@@ -273,5 +275,9 @@ public class GamesManager {
 
   public void setObserver(Optional<Observer> observer) {
     this.observer = observer;
+  }
+
+  public void setDelay(int delay) {
+    this.refereeDelayBetweenRoundsMillis = delay;
   }
 }
