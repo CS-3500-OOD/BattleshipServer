@@ -112,7 +112,7 @@ public class Referee implements IReferee {
 
   private List<String> gameLoop() {
     while (true) {
-      this.updateObserver(false);
+      this.updateObserver(false, Collections.emptyList());
 
       if(this.delayBetweenRoundsMillis > 0) {
         try {
@@ -143,7 +143,7 @@ public class Referee implements IReferee {
       }
 
       if (isGameOver()) {
-        this.updateObserver(true);
+        this.updateObserver(true, winners);
         return winners;
       }
 
@@ -178,8 +178,17 @@ public class Referee implements IReferee {
     }
   }
 
-  private void updateObserver(boolean gameOver) {
+  private void updateObserver(boolean gameOver, List<String> winners) {
     if(observerOptional.isEmpty()) return;
+
+    StringBuilder winner = new StringBuilder();
+    for(int i = 0; i < winners.size(); i++) {
+      String name = winners.get(i);
+      winner.append(name);
+      if(i < winners.size() - 1) {
+        winner.append(" and ");
+      }
+    }
 
     Observer observer = this.observerOptional.get();
 
@@ -188,6 +197,7 @@ public class Referee implements IReferee {
         gameOver,
         this.client1.name(),
         this.client2.name(),
+        winner.toString(),
         this.observerBoards[0].getBoard(),
         this.observerBoards[1].getBoard(),
         this.observerBoards[2].getBoard(),

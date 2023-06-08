@@ -102,6 +102,7 @@ public class GamesManager {
     this.clientsAcceptor.stopAcceptingClients();
     this.executorService.shutdown();
     this.executorService.shutdownNow();
+    this.observer.ifPresent(Observer::stopObserver);
 
     Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
     Server.logger.info("Shutdown. " + map.keySet().stream().filter(Thread::isAlive).toList().size()

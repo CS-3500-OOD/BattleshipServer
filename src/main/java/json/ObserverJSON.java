@@ -7,6 +7,7 @@ import game.CellStatus;
 public record ObserverJSON(
     @JsonProperty("game_id") String id,
     @JsonProperty("game_over") boolean gameOver,
+    @JsonProperty("winner") String winner,
     @JsonProperty("player_1") String player1Name,
     @JsonProperty("player_2") String player2Name,
     @JsonProperty("board_1_home") CellStatus[][] board1Home,
