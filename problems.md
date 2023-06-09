@@ -1,9 +1,14 @@
 
 
 ### 1. fix stdin issue where printing too much stuff 
-#### Status: :x:
+#### Status: :white_check_mark:
 
 IDEA: reroute all loggers to log files
+
+Update: I was able to separate out logging into files. ~~I just need to find a program that will view
+the files remotely and update as they are logged to.~~
+
+Update 2: Will use `tail -f logs/server.log` AFTER the server is running to get the input
 
 ### 2. winners on whitelist should also be kicked
 #### Status: :x:

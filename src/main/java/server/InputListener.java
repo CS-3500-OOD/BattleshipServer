@@ -2,6 +2,8 @@ package server;
 
 import java.util.Optional;
 import java.util.Scanner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * This class is responsible for handling input given on the Standard Input asynchronously.
@@ -19,6 +21,8 @@ public class InputListener {
 
   private static final String DELAY = "delay"; // takes num milliseconds as an arg
 
+  
+  private static final Logger logger = LogManager.getLogger(InputListener.class);
   private final GamesManager manager;
 
   public InputListener(GamesManager manager) {
@@ -31,7 +35,7 @@ public class InputListener {
    */
   public void acceptInput() {
     Scanner scanner = new Scanner(System.in);
-    Server.logger.info("[INPUT] To stop the server, type 'quit' on a single line");
+    logger.info("[INPUT] To stop the server, type 'quit' on a single line");
 
     while (scanner.hasNextLine()) {
       String line = scanner.nextLine().trim();
@@ -51,7 +55,7 @@ public class InputListener {
 
       }
       else if(!line.isBlank()) {
-        Server.logger.info("[INPUT] To stop the server, type 'quit'");
+        logger.info("[INPUT] To stop the server, type 'quit'");
       }
     }
   }
@@ -61,14 +65,14 @@ public class InputListener {
       try {
         int delay = Integer.parseInt(tokens[1]);
         this.manager.setDelay(delay);
-        Server.logger.info("Set round delay to " + delay + " milliseconds.");
+        logger.info("Set round delay to " + delay + " milliseconds.");
       }
       catch (NumberFormatException e) {
-        Server.logger.info("Invalid delay.");
+        logger.info("Invalid delay.");
       }
     }
     else {
-      Server.logger.info("Removing delay. Use '" + DELAY + " [number of milliseconds]' to add a new delay");
+      logger.info("Removing delay. Use '" + DELAY + " [number of milliseconds]' to add a new delay");
       this.manager.setDelay(-1);
     }
   }
@@ -78,14 +82,14 @@ public class InputListener {
       Observer observer = new Observer();
       if(observer.isConnected()) {
         this.manager.setObserver(Optional.of(observer));
-        Server.logger.info("Added observer.");
+        logger.info("Added observer.");
       }
       else {
-        Server.logger.info("Unable to connect to the specified observer.");
+        logger.info("Unable to connect to the specified observer.");
       }
     }
     else {
-      Server.logger.info("Removing observer.");
+      logger.info("Removing observer.");
       this.manager.setObserver(Optional.empty());
     }
   }
@@ -93,10 +97,10 @@ public class InputListener {
   private void printWinners(String[] tokens) {
     boolean saved = WinnerFileHandler.saveWinners(this.manager.getWinners(), tokens[1]);
     if(saved) {
-      Server.logger.info("Saved winners to file: [" + tokens[1] + "].");
+      logger.info("Saved winners to file: [" + tokens[1] + "].");
     }
     else {
-      Server.logger.info("Invalid save file given.");
+      logger.info("Invalid save file given.");
     }
   }
 
@@ -105,23 +109,23 @@ public class InputListener {
       boolean enabled = WhitelistFileHandler.loadNewWhitelist(this.manager, tokens[1]);
       if(enabled) {
         this.manager.resetWinners();
-        Server.logger.info("Reset winners for new whitelist.");
-        Server.logger.info("Whitelist enabled. File: [" + tokens[1] + "]");
+        logger.info("Reset winners for new whitelist.");
+        logger.info("Whitelist enabled. File: [" + tokens[1] + "]");
       }
       else {
-        Server.logger.info("Invalid whitelist file given.");
+        logger.info("Invalid whitelist file given.");
       }
     }
     else {
       this.manager.disableWhitelist();
       this.manager.resetWinners();
-      Server.logger.info("Reset winners.");
-      Server.logger.info("Whitelist disabled.");
+      logger.info("Reset winners.");
+      logger.info("Whitelist disabled.");
     }
   }
 
   private void quit() {
-    Server.logger.info("[INPUT] Quit received, requesting server graceful shutdown...");
+    logger.info("[INPUT] Quit received, requesting server graceful shutdown...");
     this.manager.stopServer();
   }
 

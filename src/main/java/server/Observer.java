@@ -33,7 +33,9 @@ public class Observer {
   private boolean continueConnection = true;
 
   private static final String PASSWORD = System.getenv("BS_MONGO_PASS");
-  private static final String MONGO_URI = "mongodb+srv://lucasharbani:" + PASSWORD + "@cs3500-cluster.mbwz0vd.mongodb.net/?retryWrites=true&w=majority";
+
+  // old: "mongodb+srv://lucasharbani:YogQ6VJo0vTUaqSM@cs3500-cluster.mbwz0vd.mongodb.net/?retryWrites=true&w=majority"
+  private static final String MONGO_URI = "mongodb+srv://nick:" + PASSWORD + "@cs3500-paid-cluster.4nsyu.mongodb.net/?retryWrites=true&w=majority";
   private static final String MONGO_DATABASE = "BattleSalvo";
   private static final String MONGO_COLLECTION = "rounds";
 
@@ -55,9 +57,10 @@ public class Observer {
   // Testing purposes only...
   public static void main(String[] args) {
     Observer observer = new Observer();
-    for(Document d : observer.collection.find()) {
-      System.out.println(d);
-    }
+//    for(Document d : observer.collection.find()) {
+//      System.out.println(d);
+//    }
+    observer.collection.insertOne(new Document());
   }
 
   public synchronized void updateObserver(ObserverJSON observerJSON) {

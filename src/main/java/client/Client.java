@@ -17,13 +17,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.core.config.Configurator;
 import server.GameType;
 
 public class Client {
-
-  static final Logger logger = LogManager.getLogger(Client.class);
 
   private static final String NAMES_PATH = "/Users/nickselvitelli/Desktop/cs3500_usernames.txt";
 
@@ -86,7 +83,7 @@ public class Client {
 //        String name = names.isEmpty() ? ("NickPlayer_" + i) : names.remove(0);
         Player player = new NamedPlayer(name); //zoelmg
 
-        GameType type = GameType.MULTI;
+        GameType type = GameType.SINGLE;
 
         Future<GameResult> future = service.submit(() -> new ProxyReferee(server, player, type).run());
         clients.add(future);
