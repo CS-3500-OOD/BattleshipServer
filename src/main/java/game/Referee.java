@@ -195,9 +195,9 @@ public class Referee implements IReferee {
     ObserverJSON json = new ObserverJSON(
         this.gameID,
         gameOver,
+        winner.toString(),
         this.client1.name(),
         this.client2.name(),
-        winner.toString(),
         this.observerBoards[0].getBoard(),
         this.observerBoards[1].getBoard(),
         this.observerBoards[2].getBoard(),

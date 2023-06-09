@@ -281,4 +281,8 @@ public class GamesManager {
   public void setDelay(int delay) {
     this.refereeDelayBetweenRoundsMillis = delay;
   }
+
+  public boolean isObserverEnabled() {
+    return this.observer.isPresent();
+  }
 }

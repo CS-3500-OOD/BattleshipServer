@@ -74,23 +74,18 @@ public class InputListener {
   }
 
   private void addObserver(String[] tokens) {
-    if(tokens.length == 3) {
-      try {
-        Observer observer = new Observer(tokens[1], Integer.parseInt(tokens[2]));
-        if(observer.isConnected()) {
-          this.manager.setObserver(Optional.of(observer));
-          Server.logger.info("Added observer.");
-        }
-        else {
-          Server.logger.info("Unable to connect to the specified observer.");
-        }
+    if(tokens.length == 1 && !this.manager.isObserverEnabled()) {
+      Observer observer = new Observer();
+      if(observer.isConnected()) {
+        this.manager.setObserver(Optional.of(observer));
+        Server.logger.info("Added observer.");
       }
-      catch (NumberFormatException e) {
-        Server.logger.info("Invalid port number.");
+      else {
+        Server.logger.info("Unable to connect to the specified observer.");
       }
     }
     else {
-      Server.logger.info("Removing observer. Use '" + OBSERVER + " [host] [port]' to add a new observer.");
+      Server.logger.info("Removing observer.");
       this.manager.setObserver(Optional.empty());
     }
   }

@@ -22,6 +22,8 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api:2.20.0")
     // https://central.sonatype.com/artifact/org.apache.logging.log4j/log4j-core/2.20.0
     implementation("org.apache.logging.log4j:log4j-core:2.20.0")
+    // https://www.mongodb.com/docs/drivers/java/sync/current/quick-start/#quick-start
+    implementation("org.mongodb:mongodb-driver-sync:4.9.1")
 }
 
 
