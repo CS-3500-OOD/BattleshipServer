@@ -44,7 +44,7 @@ public class ClientSignupAttempt implements Runnable {
           manager.addPlayerToQueue(player);
         }
         else {
-          Server.logger.info("Player " + playerJSON.name() + " is not on the whitelist");
+          Server.logger.info("Player " + playerJSON.name() + " has an invalid name/not on the whitelist");
           communication.sendJson(JsonUtils.buildMessageJSON("end-game", new EndGameJSON(GameResult.LOSE, "You are not allowed to join the server.")));
           communication.endCommunication();
         }

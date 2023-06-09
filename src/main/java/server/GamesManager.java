@@ -262,7 +262,7 @@ public class GamesManager {
     if(this.whitelistEnabled) {
       return this.allowedClientNames.contains(name.trim());
     }
-    return false;
+    return true;
   }
 
   public void enableWhitelist(Set<String> allowedClientNames) {
