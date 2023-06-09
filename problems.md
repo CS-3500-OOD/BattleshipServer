@@ -1,15 +1,9 @@
 
 
 ### 1. fix stdin issue where printing too much stuff 
-#### Status: :x: 
+#### Status: :x:
 
-idea: Use JavaFX to make a quick application with a text+console thing that will work with the InputListener
-
-problem: Can't be headless, prevents us from running on the DO server...
-
-solution?: Make a separate application that connects to the input listener? Won't work because the server will have to connect to the input listener application and I would have to hardcode the ip for that...
-
-unsure how to solve this one right now
+IDEA: reroute all loggers to log files
 
 ### 2. winners on whitelist should also be kicked
 #### Status: :x:
@@ -22,11 +16,10 @@ should be ~~simple~~ fix, just change in the GamesManager
 should be ~~simple~~ fix, just change in the GamesManager
 
 ### 4. players can join as an empty string name (bypasses whitelist)
-#### Status: :x:
+#### Status: :white_check_mark:
  - players can sql inject :(
 
 Add in player name sanitization. Add a method within the ClientSignupAttempt.
-Do this while also adding the ip whitelist support
 
 
 ### 5. only let one client from one ip at a time...

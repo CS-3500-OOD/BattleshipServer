@@ -9,10 +9,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -29,41 +27,66 @@ public class Client {
 
   private static final String NAMES_PATH = "/Users/nickselvitelli/Desktop/cs3500_usernames.txt";
 
+
   public static void main(String[] args) {
     Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
-    System.out.println("Client start");
-    if (args.length >= 2) {
 
-      String host = args[0];
-      int port = Integer.parseInt(args[1]);
+    System.out.println("Client Start...");
 
-      if (args.length == 3) {
-        spawnClients(host, port, Integer.parseInt(args[2]));
-      } else {
-        spawnClients(host, port, 1);
+    if(args.length == 3) {
+      try {
+        String host = args[0];
+        int port = Integer.parseInt(args[1]);
+        String name = args[2];
+        spawnClients(host, port, 1, name);
+        System.out.println("Client end.");
+        System.exit(0);
+      }
+      catch (NumberFormatException e) {
+        System.out.println("Usage: [host] [port] [name]");
       }
     }
-    System.out.println("Client end");
-    System.exit(0);
+    else {
+      System.out.println("Usage: [host] [port] [name]");
+    }
   }
 
-  private static void spawnClients(String host, int port, int numClients) {
+//  public static void main(String[] args) {
+//    Configurator.setAllLevels(LogManager.getRootLogger().getName(), Level.ALL);
+//
+//    System.out.println("Client start");
+//    if (args.length >= 2) {
+//
+//      String host = args[0];
+//      int port = Integer.parseInt(args[1]);
+//
+//      if (args.length == 3) {
+//        spawnClients(host, port, Integer.parseInt(args[2]));
+//      } else {
+//        spawnClients(host, port, 1);
+//      }
+//    }
+//    System.out.println("Client end");
+//    System.exit(0);
+//  }
+
+  private static void spawnClients(String host, int port, int numClients, String name) {
     System.out.println("Connecting " + numClients + " clients to " + host + ":" + port);
 
     ExecutorService service = Executors.newFixedThreadPool(numClients);
     List<Future<GameResult>> clients = new ArrayList<>();
 
-    List<String> names = getNames();
+//    List<String> names = getNames();
 
     for (int i = 0; i < numClients; i++) {
       try {
         System.out.println("connecting... (" + i + ")");
         Socket server = new Socket(host, port);
 
-        String name = names.isEmpty() ? ("NickPlayer_" + i) : names.remove(0);
-        Player player = new NamedPlayer(name);
+//        String name = names.isEmpty() ? ("NickPlayer_" + i) : names.remove(0);
+        Player player = new NamedPlayer(name); //zoelmg
 
-        GameType type = GameType.SINGLE;
+        GameType type = GameType.MULTI;
 
         Future<GameResult> future = service.submit(() -> new ProxyReferee(server, player, type).run());
         clients.add(future);

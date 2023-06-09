@@ -195,7 +195,8 @@ public class GamesManager {
         synchronized (this.dataLock) {
           this.winners.addAll(winners);
           if(this.whitelistEnabled) {
-            this.allowedClientNames.removeAll(List.of(player1.name(), player2.name()));
+            this.allowedClientNames.remove(player1.name());
+            this.allowedClientNames.remove(player2.name());
           }
         }
 
@@ -250,7 +251,18 @@ public class GamesManager {
 
 
   public boolean isPlayerNameAllowedToJoin(String name) {
-    return !this.whitelistEnabled || this.allowedClientNames.contains(name);
+
+    name = name.replace("//", "");
+    name = name.replace("\\", "");
+
+    boolean allowed = name.trim().length() > 0; // must have a name that is not whitespace
+
+    if(!allowed) return false;
+
+    if(this.whitelistEnabled) {
+      return this.allowedClientNames.contains(name.trim());
+    }
+    return false;
   }
 
   public void enableWhitelist(Set<String> allowedClientNames) {
