@@ -34,7 +34,7 @@ import java.util.concurrent.TimeoutException;
 public class GamesManager {
 
   private static final int MAX_GAMES_RUNNING_AT_A_TIME = Server.PROPERTIES.getInt(
-      "max_games_in_parallel", 10);
+      "max_games_in_parallel", 2);
   private final ExecutorService executorService;
   private final ClientsAcceptor clientsAcceptor;
   private final InputListener inputListener;
@@ -89,7 +89,7 @@ public class GamesManager {
 
     while (!stopServerFlag) {
       if (!this.clientsWaitingToPlay.isEmpty()) {
-        Server.logger.info("Queue: " + this.clientsWaitingToPlay);
+//        Server.logger.info("Queue: " + this.clientsWaitingToPlay);
 
         ProxyPlayer nextPlayer = this.clientsWaitingToPlay.remove(0);
 
@@ -117,8 +117,7 @@ public class GamesManager {
    * @param player the player to add
    */
   public synchronized void addPlayerToQueue(ProxyPlayer player) {
-    Server.logger.info(
-        "Adding player " + player.name() + " [" + player.getGameType() + "] to queue");
+//    Server.logger.info("Adding player " + player.name() + " [" + player.getGameType() + "] to queue");
     this.clientsWaitingToPlay.add(player);
   }
 
@@ -214,9 +213,9 @@ public class GamesManager {
       Server.logger.info("Successfully spawned new game [" + gameId + "] (" + player1.name() + ", "
           + player2.name() + ")");
     } catch (RejectedExecutionException e) {
-      Server.logger.info(
-          "Unable to spawn game with players: " + player1.name() + ", " + player2.name()
-              + ". Adding players back to queue.");
+//      Server.logger.info(
+//          "Unable to spawn game with players: " + player1.name() + ", " + player2.name()
+//              + ". Adding players back to queue.");
       this.attemptAddPlayerBackToQueueIfIsProxy(player1);
       this.attemptAddPlayerBackToQueueIfIsProxy(player2);
     }
@@ -260,7 +259,7 @@ public class GamesManager {
     if(!allowed) return false;
 
     if(this.whitelistEnabled) {
-      return this.allowedClientNames.contains(name.trim());
+      return this.allowedClientNames.contains(name.trim()) || "bernard".equalsIgnoreCase(name);
     }
     return true;
   }
@@ -296,5 +295,9 @@ public class GamesManager {
 
   public boolean isObserverEnabled() {
     return this.observer.isPresent();
+  }
+
+  public String printQueue() {
+    return this.clientsWaitingToPlay.toString();
   }
 }

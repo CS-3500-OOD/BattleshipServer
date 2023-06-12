@@ -128,6 +128,7 @@ public class Referee implements IReferee {
       boolean validVolleys = checkValidVolleys(p1AttackVolley, p2AttackVolley);
 
       if (!validVolleys) {
+        this.updateObserver(true, Collections.emptyList());
         return Collections.emptyList();
       }
 
@@ -154,6 +155,7 @@ public class Referee implements IReferee {
           damageDoneToP2);
 
       if (!validReports) {
+        this.updateObserver(true, Collections.emptyList());
         return Collections.emptyList();
       }
 
@@ -220,19 +222,21 @@ public class Referee implements IReferee {
     this.observerBoards[2].addCoordsWithStatus(c2ShipCoords, CellStatus.SHIP);
   }
 
-  private void addHitsAndMissesToObserver(List<Coord> p1AttackVolley, List<Coord> p1Hits, List<Coord> p2AttackVolley, List<Coord> p2Hits) {
-    List<Coord> p1Misses = p1AttackVolley.stream().filter(a -> !p1Hits.contains(a)).toList();
-    List<Coord> p2Misses = p1AttackVolley.stream().filter(a -> !p2Hits.contains(a)).toList();
+  private void addHitsAndMissesToObserver(List<Coord> p1AttackVolley, List<Coord> damageDoneToP2, List<Coord> p2AttackVolley, List<Coord> damageDoneToP1) {
+    List<Coord> missedShotsOnP2 = p1AttackVolley.stream().filter(a -> !damageDoneToP2.contains(a)).toList();
+    List<Coord> missedShotsOnP1 = p2AttackVolley.stream().filter(a -> !damageDoneToP1.contains(a)).toList();
 
-    this.observerBoards[0].addCoordsWithStatus(p2Hits, CellStatus.HIT);
-    this.observerBoards[0].addCoordsWithStatus(p2Misses, CellStatus.SPLASH);
-    this.observerBoards[1].addCoordsWithStatus(p1Hits, CellStatus.HIT);
-    this.observerBoards[1].addCoordsWithStatus(p1Misses, CellStatus.SPLASH);
+    this.observerBoards[0].addCoordsWithStatus(damageDoneToP1, CellStatus.HIT);
+    this.observerBoards[0].addCoordsWithStatus(missedShotsOnP1, CellStatus.SPLASH);
 
-    this.observerBoards[2].addCoordsWithStatus(p1Hits, CellStatus.HIT);
-    this.observerBoards[2].addCoordsWithStatus(p1Misses, CellStatus.SPLASH);
-    this.observerBoards[3].addCoordsWithStatus(p2Hits, CellStatus.HIT);
-    this.observerBoards[3].addCoordsWithStatus(p2Misses, CellStatus.SPLASH);
+    this.observerBoards[1].addCoordsWithStatus(damageDoneToP2, CellStatus.HIT);
+    this.observerBoards[1].addCoordsWithStatus(missedShotsOnP2, CellStatus.SPLASH);
+
+    this.observerBoards[2].addCoordsWithStatus(damageDoneToP2, CellStatus.HIT);
+    this.observerBoards[2].addCoordsWithStatus(missedShotsOnP2, CellStatus.SPLASH);
+
+    this.observerBoards[3].addCoordsWithStatus(damageDoneToP1, CellStatus.HIT);
+    this.observerBoards[3].addCoordsWithStatus(missedShotsOnP1, CellStatus.SPLASH);
   }
 
   private boolean checkValidReports(List<Coord> p1AttackVolley, List<Coord> p2AttackVolley,

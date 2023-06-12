@@ -39,7 +39,7 @@ public class ServerProperties {
     preferences.putBoolean("game_specific_debug", false);
     preferences.putBoolean("socket_communication_debug", false);
     preferences.putInt("client_game_max_response_seconds", 2);
-    preferences.putInt("max_games_in_parallel", 10);
+    preferences.putInt("max_games_in_parallel", 2);
     preferences.putInt("max_signup_response_seconds", 2);
     preferences.putInt("max_player_signup_in_parallel", 4);
     syncPreferences(preferences);

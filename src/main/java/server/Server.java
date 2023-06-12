@@ -62,6 +62,9 @@ public class Server {
       handleMiscOptions(commandLine);
 
       int port = PROPERTIES.getInt("default_port", 35001);
+
+      ServerProperties.printPreferences(PROPERTIES);
+
       runServer(port);
     }
   }
@@ -69,47 +72,47 @@ public class Server {
   private static void handleMiscOptions(CommandLine commandLine) {
     if (commandLine.hasOption('r')) {
       ServerProperties.setDefaults(PROPERTIES);
-    } else {
-      if (commandLine.hasOption('p')) {
-        try {
-          int port = Integer.parseInt(commandLine.getOptionValue('p'));
-          PROPERTIES.putInt("default_port", port);
-        } catch (NumberFormatException e) {
-          logger.error("Invalid port number, using default");
-        }
-      }
-
-      if (commandLine.hasOption('d')) {
-        String level = commandLine.getOptionValue('d');
-
-        boolean changeDebug = true;
-        boolean server = true;
-        boolean game = false;
-        boolean socket = false;
-
-        switch (level.toLowerCase()) {
-          case "all" -> {
-            game = true;
-            socket = true;
-          }
-          case "game" -> game = true;
-          case "socket" -> socket = true;
-          case "none" -> server = false;
-          default -> {
-            logger.error("Invalid debug level, using default");
-            changeDebug = false;
-          }
-        }
-
-        if (changeDebug) {
-          PROPERTIES.putBoolean("server_debug", server);
-          PROPERTIES.putBoolean("game_specific_debug", game);
-          PROPERTIES.putBoolean("socket_communication_debug", socket);
-        }
-      }
-
-      ServerProperties.syncPreferences(PROPERTIES);
     }
+
+    if (commandLine.hasOption('p')) {
+      try {
+        int port = Integer.parseInt(commandLine.getOptionValue('p'));
+        PROPERTIES.putInt("default_port", port);
+      } catch (NumberFormatException e) {
+        logger.error("Invalid port number, using default");
+      }
+    }
+
+    if (commandLine.hasOption('d')) {
+      String level = commandLine.getOptionValue('d');
+
+      boolean changeDebug = true;
+      boolean server = true;
+      boolean game = false;
+      boolean socket = false;
+
+      switch (level.toLowerCase()) {
+        case "all" -> {
+          game = true;
+          socket = true;
+        }
+        case "game" -> game = true;
+        case "socket" -> socket = true;
+        case "none" -> server = false;
+        default -> {
+          logger.error("Invalid debug level, using default");
+          changeDebug = false;
+        }
+      }
+
+      if (changeDebug) {
+        PROPERTIES.putBoolean("server_debug", server);
+        PROPERTIES.putBoolean("game_specific_debug", game);
+        PROPERTIES.putBoolean("socket_communication_debug", socket);
+      }
+    }
+
+    ServerProperties.syncPreferences(PROPERTIES);
   }
 
   private static void printHelpMessage(Options options) {

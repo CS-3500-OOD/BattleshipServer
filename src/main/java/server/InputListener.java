@@ -1,5 +1,7 @@
 package server;
 
+import client.Client;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import java.util.Scanner;
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +23,9 @@ public class InputListener {
 
   private static final String DELAY = "delay"; // takes num milliseconds as an arg
 
+  private static final String QUEUE = "queue";
+  private static final String BERNARD = "bernard";
+
   
   private static final Logger logger = LogManager.getLogger(InputListener.class);
   private final GamesManager manager;
@@ -41,16 +46,16 @@ public class InputListener {
       String line = scanner.nextLine().trim();
       String[] tokens = line.split(" ");
 
-      if (QUIT.equalsIgnoreCase(line)) {
-        quit();
-      }
-      else if (tokens.length > 0) {
+      if (tokens.length > 0) {
 
         switch (tokens[0].toLowerCase()) {
+          case QUIT -> quit();
           case WHITELIST -> whitelist(tokens);
           case PRINT_WINNERS -> printWinners(tokens);
           case OBSERVER -> addObserver(tokens);
           case DELAY -> setDelay(tokens);
+          case QUEUE -> printQueue();
+          case BERNARD -> addBernard();
         }
 
       }
@@ -58,6 +63,14 @@ public class InputListener {
         logger.info("[INPUT] To stop the server, type 'quit'");
       }
     }
+  }
+
+  private void addBernard() {
+    Client.spawnClients("0.0.0.0", 35001, 1, "bernard", false);
+  }
+
+  private void printQueue() {
+    System.out.println(this.manager.printQueue());
   }
 
   private void setDelay(String[] tokens) {
