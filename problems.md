@@ -11,14 +11,18 @@ the files remotely and update as they are logged to.~~
 Update 2: Will use `tail -f logs/server.log` AFTER the server is running to get the input
 
 ### 2. winners on whitelist should also be kicked
-#### Status: :x:
+#### Status: :white_check_mark:
 
 should be ~~simple~~ fix, just change in the GamesManager
+
+Update: Alex tested and seemed like a non-issue
 
 ### 3. whitelist turns off after everyone goes
-#### Status: :x:
+#### Status: :white_check_mark:
 
 should be ~~simple~~ fix, just change in the GamesManager
+
+Update: Could not find issue
 
 ### 4. players can join as an empty string name (bypasses whitelist)
 #### Status: :white_check_mark:
