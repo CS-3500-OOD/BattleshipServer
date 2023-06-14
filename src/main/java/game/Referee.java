@@ -254,6 +254,13 @@ public class Referee implements IReferee {
       GameResult p2Result = draw ? GameResult.DRAW : p2Valid ? GameResult.WIN : GameResult.LOSE;
       String reason = "A player did not return the correct damage report";
 
+      if(p1Valid) {
+        this.winners.add(client1.name());
+      }
+      if(p2Valid) {
+        winners.add(client2.name());
+      }
+
       if (Server.DEBUG && GAME_DEBUG) {
         logger.info(this.gameUniqueMarker, reason);
         logger.info(client1.name() + ": " + p1Result + ", " + client2.name() + ": " + p2Result);
@@ -290,9 +297,18 @@ public class Referee implements IReferee {
       client1.endGame(result1, p1InvalidVolley ? badVolleyReason : normalReason);
       client2.endGame(result2, p2InvalidVolley ? badVolleyReason : normalReason);
 
-        if (Server.DEBUG && GAME_DEBUG) {
-            logger.info(this.gameUniqueMarker, "A player did not return a valid volley");
-        }
+      if(!p1InvalidVolley) {
+        winners.add(client1.name());
+      }
+
+      if(!p2InvalidVolley) {
+        winners.add(client2.name());
+      }
+
+
+      if (Server.DEBUG && GAME_DEBUG) {
+          logger.info(this.gameUniqueMarker, "A player did not return a valid volley");
+      }
 
       String serverOutcomeLog = (p1InvalidVolley && p2InvalidVolley) ? "Both players lost"
           : (p1InvalidVolley ? client2.name() + " won!" : client1.name() + " won!");
@@ -371,6 +387,15 @@ public class Referee implements IReferee {
       boolean draw = (!c1Valid && !c2Valid);
       GameResult result1 = draw ? GameResult.DRAW : (c1Valid ? GameResult.WIN : GameResult.LOSE);
       GameResult result2 = draw ? GameResult.DRAW : (c2Valid ? GameResult.WIN : GameResult.LOSE);
+
+      if(c1Valid) {
+        this.winners.add(this.client1.name());
+      }
+
+      if(c2Valid) {
+        this.winners.add(this.client2.name());
+      }
+
       client1.endGame(result1, c1Valid ? reasonStopped : reasonFailed);
       client2.endGame(result2, c2Valid ? reasonStopped : reasonFailed);
       return false;

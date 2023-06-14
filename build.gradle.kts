@@ -31,7 +31,7 @@ tasks.test {
     useJUnitPlatform()
 }
 
-var makeServerJar : Boolean = false
+var makeServerJar : Boolean = true
 
 application {
     mainClass.set(if(makeServerJar) "server.Server" else "client.Client")

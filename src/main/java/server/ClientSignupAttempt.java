@@ -39,12 +39,12 @@ public class ClientSignupAttempt implements Runnable {
         PlayerJSON playerJSON = new ObjectMapper().convertValue(messageJSON.get().arguments(),
             PlayerJSON.class);
 
-        if(manager.isPlayerNameAllowedToJoin(playerJSON.name())) {
+        if(manager.isPlayerNameAllowedToJoin(playerJSON.name()) && playerJSON.gameType() == GameType.MULTI) {
           ProxyPlayer player = new ProxyPlayer(client, playerJSON.name(), playerJSON.gameType());
           manager.addPlayerToQueue(player);
         }
         else {
-          Server.logger.info("Player " + playerJSON.name() + " has an invalid name/not on the whitelist");
+          Server.logger.info("Player " + playerJSON.name() + " has an invalid name/not on the whitelist or chose 'SINGLE' as game type while in tournament mode");
           communication.sendJson(JsonUtils.buildMessageJSON("end-game", new EndGameJSON(GameResult.LOSE, "You are not allowed to join the server.")));
           communication.endCommunication();
         }
